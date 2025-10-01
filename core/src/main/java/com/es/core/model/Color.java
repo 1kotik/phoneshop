@@ -1,4 +1,4 @@
-package com.es.core.model.phone;
+package com.es.core.model;
 
 public class Color {
     private Long id;
@@ -18,5 +18,14 @@ public class Color {
 
     public void setCode(final String code) {
         this.code = code;
+    }
+
+    public Color(Long id, String code) {
+        this.id = id;
+        this.code = code;
+    }
+
+    public Color() {
+
     }
 }
