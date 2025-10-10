@@ -16,6 +16,23 @@ public class SqlUtils {
                 "update %s set code = ? where %s = ?", TABLE_NAME, COLOR_ID);
 
         public static final String FIND_ALL_QUERY = String.format("select * from %s", TABLE_NAME);
+
+        public static final String JOIN_WITH_PHONE_COLOR_RELATIONS_TABLE = String.format("""
+                select c.%s, c.code, pc.%s from %s c inner join %s pc on c.%s = pc.%s
+                """,
+                COLOR_ID, Phone.PHONES_COLORS_RELATIONS_PHONE_ID, TABLE_NAME, Phone.PHONES_COLORS_RELATIONS_TABLE_NAME,
+                COLOR_ID, Phone.PHONES_COLORS_RELATIONS_COLOR_ID);
+    }
+
+    public static class Stock {
+        private Stock() {}
+        public static final String TABLE_NAME = "stocks";
+        public static final String PHONE_ID = "phoneId";
+        public static final String FIND_BY_PHONE_ID_QUERY = String.format("""
+                select * from %s where %s = ?""", TABLE_NAME, PHONE_ID);
+        public static final String UPDATE_STOCK_QUERY = String.format("""
+                update %s set stock = :stock, reserved = :reserved where %s = :phoneId""",
+                TABLE_NAME, PHONE_ID);
     }
 
     public static class Phone {
@@ -45,7 +62,10 @@ public class SqlUtils {
                 positioning = :positioning, imageUrl = :imageUrl, description = :description
                 where %s = :id""", TABLE_NAME, PHONE_ID);
 
-        public static final String FIND_ALL_QUERY = String.format("select * from %s offset ? limit ?", TABLE_NAME);
+        public static final String FIND_ALL_QUERY = String.format("""
+                       select p.%s, p.brand, p.model, p.price, p.displaySizeInches, p.imageUrl, s.stock from %s p\s
+                       inner join %s s on s.%s = p.%s where price is not null and s.stock > 0""",
+                PHONE_ID, TABLE_NAME, Stock.TABLE_NAME, Stock.PHONE_ID, PHONE_ID);
 
         public static final String DELETE_PHONE_COLOR_RELATIONS_QUERY = String.format(
                 "delete from %s where %s = ?", PHONES_COLORS_RELATIONS_TABLE_NAME, PHONES_COLORS_RELATIONS_PHONE_ID);
@@ -54,4 +74,5 @@ public class SqlUtils {
                 "insert into %s (%s, %s) values (?, ?)",
                 PHONES_COLORS_RELATIONS_TABLE_NAME, PHONES_COLORS_RELATIONS_PHONE_ID, PHONES_COLORS_RELATIONS_COLOR_ID);
     }
+
 }

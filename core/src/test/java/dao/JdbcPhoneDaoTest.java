@@ -2,8 +2,11 @@ package dao;
 
 import com.es.core.dao.JdbcColorDao;
 import com.es.core.dao.JdbcPhoneDao;
+import com.es.core.enums.SortCriteria;
+import com.es.core.enums.SortOrder;
 import com.es.core.model.Color;
 import com.es.core.model.Phone;
+import com.es.core.model.PhoneListItem;
 import com.es.core.util.SqlUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.jdbc.JdbcTestUtils;
 import util.PhoneTestUtils;
 
 import java.math.BigDecimal;
@@ -42,9 +44,8 @@ class JdbcPhoneDaoTest {
 
     @BeforeEach
     public void setUp() {
-        JdbcTestUtils.deleteFromTables(jdbcTemplate, SqlUtils.Phone.TABLE_NAME,
-                SqlUtils.Phone.PHONES_COLORS_RELATIONS_TABLE_NAME, SqlUtils.Color.TABLE_NAME);
-        testPhone = PhoneTestUtils.createPhone();
+        PhoneTestUtils.loadTestData(jdbcTemplate);
+        testPhone = PhoneTestUtils.getPhone(1L);
     }
 
     @Test
@@ -80,16 +81,8 @@ class JdbcPhoneDaoTest {
 
     @Test
     void shouldFindAll() {
-        String newString = "new";
-        Phone anotherPhone = new Phone();
-        anotherPhone.setBrand(newString);
-        anotherPhone.setModel(newString);
-        phoneDao.save(testPhone);
-        phoneDao.save(anotherPhone);
-        List<Phone> phones = phoneDao.findAll(0, 10);
-        assertEquals(2, phones.size());
-        assertTrue(phones.stream().anyMatch(p -> p.getBrand().equals("test")));
-        assertTrue(phones.stream().anyMatch(p -> p.getBrand().equals(newString)));
+        List<PhoneListItem> phones = phoneDao.findAll(SortCriteria.BRAND, SortOrder.ASC);
+        assertEquals(1, phones.size());
     }
 
     @Test

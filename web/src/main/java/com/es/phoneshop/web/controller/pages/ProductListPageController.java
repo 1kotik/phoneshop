@@ -1,23 +1,37 @@
 package com.es.phoneshop.web.controller.pages;
 
 
+import com.es.core.model.CartTotals;
+import com.es.core.model.PhoneListResponse;
+import com.es.core.service.CartService;
+import com.es.core.service.PhoneService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-
-import com.es.core.dao.PhoneDao;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping (value = "/productList")
 public class ProductListPageController {
     @Resource
-    private PhoneDao phoneDao;
+    private PhoneService phoneService;
+    @Resource
+    private CartService cartService;
 
-    @RequestMapping(method = RequestMethod.GET)
-    public String showProductList(Model model) {
-        model.addAttribute("phones", phoneDao.findAll(0, 10));
+    @GetMapping
+    public String showProductList(
+            Model model,
+            @RequestParam(name = "q", defaultValue = "") String query,
+            @RequestParam(name = "criteria", defaultValue = "") String sortCriteria,
+            @RequestParam(name = "order", defaultValue = "") String sortOrder,
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(name = "itemsPerPage", defaultValue = "10") int phonesPerPage) {
+        PhoneListResponse response = phoneService.findAll(query, sortCriteria, sortOrder, page, phonesPerPage);
+        CartTotals cartTotals = cartService.getCartTotals();
+        model.addAttribute("response", response);
+        model.addAttribute("cart", cartTotals);
         return "productList";
     }
 }

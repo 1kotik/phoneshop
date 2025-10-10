@@ -1,7 +1,10 @@
 package com.es.core.dao;
 
+import com.es.core.enums.SortCriteria;
+import com.es.core.enums.SortOrder;
 import com.es.core.model.Color;
 import com.es.core.model.Phone;
+import com.es.core.model.PhoneListItem;
 import com.es.core.util.PhoneRowMapper;
 import com.es.core.util.SqlUtils;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
@@ -56,8 +59,15 @@ public class JdbcPhoneDao implements PhoneDao {
         return phone.getId() == null ? insertPhone(phone) : updatePhone(phone);
     }
 
-    public List<Phone> findAll(int offset, int limit) {
-        return jdbcTemplate.query(SqlUtils.Phone.FIND_ALL_QUERY, new BeanPropertyRowMapper(Phone.class), offset, limit);
+    public List<PhoneListItem> findAll(SortCriteria sortCriteria, SortOrder sortOrder) {
+        String sql = SqlUtils.Phone.FIND_ALL_QUERY;
+
+        if (!SortCriteria.QUERY.equals(sortCriteria)) {
+            sql = String.format("%s order by %s %s", SqlUtils.Phone.FIND_ALL_QUERY,
+                    sortCriteria.getDbColumnName(), sortOrder);
+        }
+
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper(PhoneListItem.class));
     }
 
     private Long updatePhone(Phone phone) {

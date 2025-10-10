@@ -38,6 +38,11 @@
         <property name="generatedKeyName" value="#{T(com.es.core.util.SqlUtils.Color).COLOR_ID}"/>
     </bean>
 
+    <bean id="jdbcInsertStock" class="org.springframework.jdbc.core.simple.SimpleJdbcInsert">
+        <constructor-arg name="jdbcTemplate" ref="jdbcTemplate"/>
+        <property name="tableName" value="#{T(com.es.core.util.SqlUtils.Stock).TABLE_NAME}"/>
+    </bean>
+
     <jdbc:initialize-database enabled="${db.insertSchema}" data-source="dataSource">
         <jdbc:script location="classpath:db/schema.sql" />
     </jdbc:initialize-database>
