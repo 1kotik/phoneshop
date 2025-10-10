@@ -1,6 +1,8 @@
 package com.es.core.dao;
 
 import com.es.core.model.Color;
+import com.es.core.model.ColorWithPhoneId;
+import com.es.core.util.CustomStringUtils;
 import com.es.core.util.SqlUtils;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -14,9 +16,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.Set;
 
 @Component
 public class JdbcColorDao implements ColorDao {
@@ -34,7 +39,7 @@ public class JdbcColorDao implements ColorDao {
             return new ArrayList<>();
         }
 
-        String colorIdSet = getListOfColorIds(colors);
+        String colorIdSet = CustomStringUtils.getEnumerationOfIds(colors.stream().map(Color::getId).toList());
         List<Color> existentColors = colorIdSet.isEmpty() ? new ArrayList<>()
                 : jdbcTemplate.query(SqlUtils.Color.SELECT_BY_ID_SET_QUERY,
                 new BeanPropertyRowMapper(Color.class), colorIdSet);
@@ -60,12 +65,23 @@ public class JdbcColorDao implements ColorDao {
         return colors;
     }
 
-    private String getListOfColorIds(List<Color> colors) {
-        return colors.stream()
-                .map(Color::getId)
-                .filter(Objects::nonNull)
-                .map(Object::toString)
-                .collect(Collectors.joining(", "));
+    public Map<Long, Set<Color>> findColorsByPhoneIds(Set<Long> phoneIds) {
+        if (phoneIds == null || phoneIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        String parameters = String.join(", ", Collections.nCopies(phoneIds.size(), "?"));
+        String sql = String.format("%s where pc.%s in (%s)",
+                SqlUtils.Color.JOIN_WITH_PHONE_COLOR_RELATIONS_TABLE,
+                SqlUtils.Phone.PHONES_COLORS_RELATIONS_PHONE_ID, parameters);
+        List<ColorWithPhoneId> colors = jdbcTemplate.query(sql,
+                new BeanPropertyRowMapper<>(ColorWithPhoneId.class), phoneIds.toArray());
+
+        Map<Long, Set<Color>> colorMap = new HashMap<>();
+        colors.forEach(color -> colorMap.computeIfAbsent(color.getPhoneId(), key -> new HashSet<>())
+                .add(new Color(color.getId(), color.getCode())));
+
+        return colorMap;
     }
 
     private List<Long> insertColors(List<Color> colors) {

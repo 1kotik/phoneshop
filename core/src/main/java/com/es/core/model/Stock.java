@@ -1,16 +1,25 @@
 package com.es.core.model;
 
 public class Stock {
-    private Phone phone;
+    private Long phoneId;
     private Integer stock;
     private Integer reserved;
 
-    public Phone getPhone() {
-        return phone;
+    public Stock() {
     }
 
-    public void setPhone(Phone phone) {
-        this.phone = phone;
+    public Stock(Long phoneId, Integer stock, Integer reserved) {
+        this.phoneId = phoneId;
+        this.stock = stock;
+        this.reserved = reserved;
+    }
+
+    public Long getPhoneId() {
+        return phoneId;
+    }
+
+    public void setPhoneId(Long phoneId) {
+        this.phoneId = phoneId;
     }
 
     public Integer getStock() {
