@@ -1,4 +1,4 @@
-package com.es.core.model;
+package com.es.core.enums;
 
 public enum OrderStatus {
     NEW, DELIVERED, REJECTED

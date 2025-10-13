@@ -7,12 +7,15 @@
 		   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
     <context:component-scan base-package="com.es.phoneshop.web" />
 
-    <mvc:annotation-driven/>
+    <mvc:annotation-driven validator="validator"/>
+    <mvc:resources mapping="/scripts/**" location="/scripts"/>
     <mvc:view-controller path="/" view-name="forward:/index.jsp"/>
 
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="prefix" value="/WEB-INF/pages/" />
         <property name="suffix" value=".jsp" />
     </bean>
+
+    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
 
 </beans>
