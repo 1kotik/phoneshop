@@ -3,7 +3,6 @@ package com.es.core.enums;
 import java.util.Arrays;
 
 public enum SortCriteria {
-    QUERY(""),
     BRAND("brand"),
     MODEL("model"),
     DISPLAY_SIZE("displaySizeInches"),
@@ -22,6 +21,6 @@ public enum SortCriteria {
         return Arrays.stream(SortCriteria.values())
                 .filter(criteria -> criteria.dbColumnName.equals(dbColumnName))
                 .findFirst()
-                .orElse(QUERY);
+                .orElse(BRAND);
     }
 }

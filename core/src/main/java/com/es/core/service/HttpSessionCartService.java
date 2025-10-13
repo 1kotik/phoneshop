@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.locks.ReadWriteLock;
 
 @Service
 public class HttpSessionCartService implements CartService {
@@ -19,16 +20,28 @@ public class HttpSessionCartService implements CartService {
     private StockService stockService;
     @Resource
     private PhoneService phoneService;
+    @Resource
+    private ReadWriteLock cartLock;
 
     @Override
     public Cart getCart() {
-        return cart;
+        cartLock.readLock().lock();
+        try {
+            return cart;
+        } finally {
+            cartLock.readLock().unlock();
+        }
     }
 
     @Override
     public void addPhone(Long phoneId, Integer quantity) {
-        getItemInCart(phoneId).ifPresentOrElse(item -> updateItemIfAlreadyInCart(item, quantity),
-                () -> addItemIfNotInCart(phoneId, quantity));
+        cartLock.writeLock().lock();
+        try {
+            getItemInCart(phoneId).ifPresentOrElse(item -> updateItemIfAlreadyInCart(item, quantity),
+                    () -> addItemIfNotInCart(phoneId, quantity));
+        } finally {
+            cartLock.writeLock().unlock();
+        }
     }
 
     @Override
@@ -43,7 +56,12 @@ public class HttpSessionCartService implements CartService {
 
     @Override
     public CartTotals getCartTotals() {
-        return new CartTotals(cart.getTotalQuantity(), cart.getTotalPrice());
+        cartLock.readLock().lock();
+        try {
+            return new CartTotals(cart.getTotalQuantity(), cart.getTotalPrice());
+        } finally {
+            cartLock.readLock().unlock();
+        }
     }
 
     private Optional<CartItem> getItemInCart(Long phoneId) {
@@ -61,9 +79,7 @@ public class HttpSessionCartService implements CartService {
 
     private void updateItemIfAlreadyInCart(CartItem cartItem, Integer quantity) {
         stockService.reserveItems(cartItem.getPhone().getId(), quantity);
-        cart.getCartItems().stream()
-                .filter(item -> item.getPhone().getId().equals(cartItem.getPhone().getId()))
-                .forEach(item -> item.setQuantity(item.getQuantity() + quantity));
+        cartItem.setQuantity(cartItem.getQuantity() + quantity);
         calculateTotals();
     }
 

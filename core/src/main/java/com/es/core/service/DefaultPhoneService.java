@@ -48,32 +48,12 @@ public class DefaultPhoneService implements PhoneService {
     @Override
     public PhoneListResponse findAll(String query, String sortCriteria, String sortOrder,
                                      int page, int phonesPerPage) {
-        List<PhoneListItem> phones = phoneDao
-                .findAll(SortCriteria.getEnum(sortCriteria), SortOrder.getEnum(sortOrder));
-        phones = filterPhoneListByQuery(phones, query, SortCriteria.getEnum(sortCriteria));
-        int totalPages = (int) Math.ceil((double) phones.size() / phonesPerPage);
-        phones = phones.stream()
-                .skip((page - 1) * phonesPerPage)
-                .limit(phonesPerPage)
-                .toList();
-        setColors(phones);
-        return new PhoneListResponse(phones, totalPages);
-    }
-
-    private List<PhoneListItem> filterPhoneListByQuery(List<PhoneListItem> phones, String query, SortCriteria sortCriteria) {
-        String[] queryParts = PhoneQueryUtils.getQueryParts(query);
-        if (query != null && !query.trim().isEmpty()) {
-            phones = phones.stream()
-                    .filter(phone -> PhoneQueryUtils
-                            .getQueryMatchNumber(phone.getBrand(), phone.getModel(), queryParts) > 0)
-                    .toList();
-        }
-
-        if (SortCriteria.QUERY.equals(sortCriteria)) {
-            phones = phones.stream().sorted(new PhoneQueryMatchNumberComparator(queryParts)).toList();
-        }
-
-        return phones;
+        SortCriteria criteria = SortCriteria.getEnum(sortCriteria);
+        int offset = (page - 1) * phonesPerPage;
+        PhoneListResponse response = phoneDao
+                .findAll(query, criteria, SortOrder.getEnum(sortOrder), offset, phonesPerPage);
+        setColors(response.getPhones());
+        return response;
     }
 
     private void setColors(List<PhoneListItem> phones) {

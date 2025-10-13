@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import util.PhoneTestUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -59,18 +60,20 @@ class DefaultPhoneServiceTest {
     @NullSource
     @ValueSource(strings = "")
     void shouldGetPhoneListWhenQueryIsEmptyOrNull(String query) {
-        when(phoneDao.findAll(SortCriteria.QUERY, SortOrder.ASC)).thenReturn(PhoneTestUtils.getPhoneList());
+        when(phoneDao.findAll(query, SortCriteria.BRAND, SortOrder.ASC, 0, 10))
+                .thenReturn(new PhoneListResponse(PhoneTestUtils.getPhoneList(), 1));
         PhoneListResponse response = defaultPhoneService
-                .findAll(query, "query", "asc", 1, 10);
+                .findAll(query, "brand", "asc", 1, 10);
         assertEquals(1, response.getTotalPages());
         assertEquals(PhoneTestUtils.getPhoneList().size(), response.getPhones().size());
     }
 
     @Test
     void shouldGetPhoneListWhenQueryIsNotEmpty() {
-        when(phoneDao.findAll(SortCriteria.QUERY, SortOrder.ASC)).thenReturn(PhoneTestUtils.getPhoneList());
+        when(phoneDao.findAll("brand1", SortCriteria.BRAND, SortOrder.ASC, 0, 10))
+                .thenReturn(new PhoneListResponse(List.of(PhoneTestUtils.getPhoneList().get(0)), 1));
         PhoneListResponse response = defaultPhoneService
-                .findAll("brand1", "query", "asc", 1, 10);
+                .findAll("brand1", "brand", "asc", 1, 10);
         assertEquals(1, response.getTotalPages());
         assertEquals(1, response.getPhones().size());
     }

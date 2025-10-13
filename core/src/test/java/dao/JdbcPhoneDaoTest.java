@@ -7,6 +7,7 @@ import com.es.core.enums.SortOrder;
 import com.es.core.model.Color;
 import com.es.core.model.Phone;
 import com.es.core.model.PhoneListItem;
+import com.es.core.model.PhoneListResponse;
 import com.es.core.util.SqlUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -81,8 +82,8 @@ class JdbcPhoneDaoTest {
 
     @Test
     void shouldFindAll() {
-        List<PhoneListItem> phones = phoneDao.findAll(SortCriteria.BRAND, SortOrder.ASC);
-        assertEquals(1, phones.size());
+        PhoneListResponse response = phoneDao.findAll("", SortCriteria.BRAND, SortOrder.ASC, 0, 10);
+        assertEquals(1, response.getPhones().size());
     }
 
     @Test

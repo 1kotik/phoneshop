@@ -8,6 +8,8 @@ import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
@@ -21,16 +23,20 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 @Component
 public class JdbcColorDao implements ColorDao {
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert jdbcInsertColor;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    public JdbcColorDao(JdbcTemplate jdbcTemplate, SimpleJdbcInsert jdbcInsertColor) {
+    public JdbcColorDao(JdbcTemplate jdbcTemplate, SimpleJdbcInsert jdbcInsertColor,
+                        NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
         this.jdbcInsertColor = jdbcInsertColor;
+        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
 
     @Transactional
@@ -39,10 +45,14 @@ public class JdbcColorDao implements ColorDao {
             return new ArrayList<>();
         }
 
-        String colorIdSet = CustomStringUtils.getEnumerationOfIds(colors.stream().map(Color::getId).toList());
-        List<Color> existentColors = colorIdSet.isEmpty() ? new ArrayList<>()
-                : jdbcTemplate.query(SqlUtils.Color.SELECT_BY_ID_SET_QUERY,
-                new BeanPropertyRowMapper(Color.class), colorIdSet);
+        List<Long> colorIds = colors.stream()
+                .map(Color::getId)
+                .filter(Objects::nonNull)
+                .toList();
+        SqlParameterSource params = new MapSqlParameterSource(SqlUtils.ID_SET, colorIds);
+        List<Color> existentColors = colorIds.isEmpty() ? new ArrayList<>()
+                : namedParameterJdbcTemplate.query(SqlUtils.Color.SELECT_BY_ID_SET_QUERY,
+                params, new BeanPropertyRowMapper(Color.class));
         List<Color> colorsToInsert = colors.stream()
                 .filter(color -> existentColors.stream()
                         .noneMatch(existentColor -> existentColor.getId().equals(color.getId())))
@@ -70,12 +80,10 @@ public class JdbcColorDao implements ColorDao {
             return Collections.emptyMap();
         }
 
-        String parameters = String.join(", ", Collections.nCopies(phoneIds.size(), "?"));
-        String sql = String.format("%s where pc.%s in (%s)",
-                SqlUtils.Color.JOIN_WITH_PHONE_COLOR_RELATIONS_TABLE,
-                SqlUtils.Phone.PHONES_COLORS_RELATIONS_PHONE_ID, parameters);
-        List<ColorWithPhoneId> colors = jdbcTemplate.query(sql,
-                new BeanPropertyRowMapper<>(ColorWithPhoneId.class), phoneIds.toArray());
+        SqlParameterSource params = new MapSqlParameterSource(SqlUtils.ID_SET, phoneIds);
+        List<ColorWithPhoneId> colors = namedParameterJdbcTemplate
+                .query(SqlUtils.Color.JOIN_WITH_PHONE_COLOR_RELATIONS_TABLE,
+                params, new BeanPropertyRowMapper<>(ColorWithPhoneId.class));
 
         Map<Long, Set<Color>> colorMap = new HashMap<>();
         colors.forEach(color -> colorMap.computeIfAbsent(color.getPhoneId(), key -> new HashSet<>())
