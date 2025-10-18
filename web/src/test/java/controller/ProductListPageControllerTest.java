@@ -5,6 +5,7 @@ import com.es.core.model.PhoneListItem;
 import com.es.core.model.PhoneListResponse;
 import com.es.core.service.CartService;
 import com.es.core.service.PhoneService;
+import com.es.core.util.AppConstants;
 import com.es.phoneshop.web.controller.pages.ProductListPageController;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,9 +45,9 @@ class ProductListPageControllerTest {
                 .thenReturn(phoneListResponse);
         when(cartService.getCartTotals()).thenReturn(cartTotals);
         String view = productListPageController.showProductList(model, query, sortCriteria, sortOrder, page, pageSize);
-        assertEquals("productList", view);
-        assertEquals(cartTotals, model.getAttribute("cart"));
-        assertEquals(phoneListResponse, model.getAttribute("response"));
+        assertEquals(AppConstants.Pages.PRODUCT_LIST, view);
+        assertEquals(cartTotals, model.getAttribute(AppConstants.PageAttributes.CART_TOTALS));
+        assertEquals(phoneListResponse, model.getAttribute(AppConstants.PageAttributes.PHONE_LIST_RESPONSE));
     }
 
     private List<PhoneListItem> getPhoneList() {

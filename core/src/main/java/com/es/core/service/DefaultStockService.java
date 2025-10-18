@@ -5,6 +5,7 @@ import com.es.core.exception.OutOfStockException;
 import com.es.core.exception.PhoneNotFoundException;
 import com.es.core.exception.StockNotFoundException;
 import com.es.core.model.Stock;
+import com.es.core.util.AppConstants;
 import jakarta.annotation.Resource;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -42,4 +43,18 @@ public class DefaultStockService implements StockService {
         stock.setReserved(stock.getReserved() + quantity);
         stockDao.save(stock);
     }
+
+    @Override
+    @Transactional
+    public void releaseItems(Long phoneId, Integer quantity) {
+        Stock stock = findByPhoneId(phoneId);
+
+        if(stock.getReserved() < quantity) {
+            throw new IllegalArgumentException(AppConstants.ErrorMessages.INVALID_QUANTITY);
+        }
+
+        stock.setReserved(stock.getReserved() - quantity);
+        stockDao.save(stock);
+    }
+
 }

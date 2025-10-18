@@ -9,8 +9,6 @@ import com.es.core.model.Color;
 import com.es.core.model.Phone;
 import com.es.core.model.PhoneListItem;
 import com.es.core.model.PhoneListResponse;
-import com.es.core.util.PhoneQueryMatchNumberComparator;
-import com.es.core.util.PhoneQueryUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

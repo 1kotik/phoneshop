@@ -75,4 +75,23 @@ class DefaultStockServiceTest {
         when(stockDao.findByPhoneId(phoneId)).thenReturn(Optional.of(stock));
         assertThrows(OutOfStockException.class, () -> defaultStockService.reserveItems(phoneId, quantity));
     }
+
+    @Test
+    void shouldReleaseItems() {
+        Long phoneId = 1L;
+        Integer quantity = 10;
+        Stock stock = new Stock(phoneId, 20, 10);
+        when(stockDao.findByPhoneId(phoneId)).thenReturn(Optional.of(stock));
+        doNothing().when(stockDao).save(stock);
+        assertDoesNotThrow(() -> defaultStockService.releaseItems(phoneId, quantity));
+    }
+
+    @Test
+    void shouldThrowIllegalArgumentException() {
+        Long phoneId = 1L;
+        Integer quantity = 20;
+        Stock stock = new Stock(phoneId, 20, 15);
+        when(stockDao.findByPhoneId(phoneId)).thenReturn(Optional.of(stock));
+        assertThrows(IllegalArgumentException.class, () -> defaultStockService.releaseItems(phoneId, quantity));
+    }
 }

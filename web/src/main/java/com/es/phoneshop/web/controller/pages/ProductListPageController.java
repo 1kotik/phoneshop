@@ -5,6 +5,7 @@ import com.es.core.model.CartTotals;
 import com.es.core.model.PhoneListResponse;
 import com.es.core.service.CartService;
 import com.es.core.service.PhoneService;
+import com.es.core.util.AppConstants;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-@RequestMapping (value = "/productList")
+@RequestMapping(value = "/productList")
 public class ProductListPageController {
     @Resource
     private PhoneService phoneService;
@@ -30,8 +31,8 @@ public class ProductListPageController {
             @RequestParam(name = "itemsPerPage", defaultValue = "10") int phonesPerPage) {
         PhoneListResponse response = phoneService.findAll(query, sortCriteria, sortOrder, page, phonesPerPage);
         CartTotals cartTotals = cartService.getCartTotals();
-        model.addAttribute("response", response);
-        model.addAttribute("cart", cartTotals);
-        return "productList";
+        model.addAttribute(AppConstants.PageAttributes.PHONE_LIST_RESPONSE, response);
+        model.addAttribute(AppConstants.PageAttributes.CART_TOTALS, cartTotals);
+        return AppConstants.Pages.PRODUCT_LIST;
     }
 }

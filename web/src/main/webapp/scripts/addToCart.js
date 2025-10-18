@@ -4,15 +4,24 @@ $(document).ready(function () {
         let phoneId = button.data('phone-id')
         let quantity = button.closest('tr').find('.quantity-input').val()
         let errorMessage = button.closest('tr').find('.error-message')
+        let contextPath = $('body').data('context-path')
+
+        if(quantity === undefined) {
+            quantity = $('#quantity-input').val()
+        }
 
         if(quantity === '') {
             quantity = 0
         }
 
+        if(errorMessage.length === 0) {
+            errorMessage = $('#error-message')
+        }
+
         button.prop('disabled', true).text('Wait...')
 
         $.ajax({
-            url: 'ajaxCart',
+            url: contextPath + `/ajaxCart`,
             method: 'POST',
             data: {
                 phoneId: phoneId,
@@ -21,7 +30,7 @@ $(document).ready(function () {
             success: function(response) {
                 button.prop('disabled', false).text('Add')
                 $('#total-items').text(response.totalQuantity + ' items for ')
-                $('#total-price').text('$' + response.totalPrice)
+                $('#total-price').text(response.totalPrice.toFixed(2) + ' $')
                 $('#add-to-cart-msg').text('Successfully added phone to cart!')
                 errorMessage.text('')
             },
