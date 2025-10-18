@@ -33,4 +33,15 @@ class AjaxCartControllerTest {
         assertEquals(cartTotals.getTotalQuantity(), response.getTotalQuantity());
         assertEquals(cartTotals.getTotalPrice(), response.getTotalPrice());
     }
+
+    @Test
+    void shouldRemovePhoneFromCart() {
+        Long phoneId = 1L;
+        CartTotals cartTotals = new CartTotals(12, BigDecimal.TEN);
+        doNothing().when(cartService).remove(phoneId);
+        when(cartService.getCartTotals()).thenReturn(cartTotals);
+        CartTotals response = ajaxCartController.removePhone(phoneId);
+        assertEquals(cartTotals.getTotalQuantity(), response.getTotalQuantity());
+        assertEquals(cartTotals.getTotalPrice(), response.getTotalPrice());
+    }
 }

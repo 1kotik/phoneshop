@@ -1,5 +1,6 @@
 package com.es.phoneshop.web.controller.exception_handlers;
 
+import com.es.core.util.AppConstants;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -8,7 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class PageExceptionHandler {
     @ExceptionHandler(Throwable.class)
     public String handleOtherExceptions(Throwable e, Model model) {
-        model.addAttribute("message", "Sorry! Something went wrong");
-        return "error";
+        model.addAttribute("message", AppConstants.ErrorMessages.INTERNAL_ERROR);
+        return AppConstants.Pages.ERROR;
     }
 }

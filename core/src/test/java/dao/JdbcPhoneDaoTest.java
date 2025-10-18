@@ -6,7 +6,6 @@ import com.es.core.enums.SortCriteria;
 import com.es.core.enums.SortOrder;
 import com.es.core.model.Color;
 import com.es.core.model.Phone;
-import com.es.core.model.PhoneListItem;
 import com.es.core.model.PhoneListResponse;
 import com.es.core.util.SqlUtils;
 import org.junit.jupiter.api.BeforeEach;

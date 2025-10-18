@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -14,26 +15,9 @@
     <script src="${pageContext.servletContext.contextPath}/scripts/addToCart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </head>
-<body>
+<body data-context-path="${pageContext.servletContext.contextPath}">
 
-<header>
-    <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
-        <div class="container">
-            <a class="navbar-brand fs-2 fw-bold" href="${pageContext.servletContext.contextPath}">
-                <i class="bi bi-phone"></i> Phonify
-            </a>
-            <div class="d-flex align-items-center">
-                <div class="ms-3">
-                    <button class="btn btn-light border">
-                        My cart:
-                        <span id="total-items">${not empty cart ? cart.totalQuantity : 0} items</span>
-                        <span id="total-price">$${not empty cart ? cart.totalPrice : 0}</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </nav>
-</header>
+<tags:header cart="${cartTotals}"/>
 
 <main class="container my-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -41,7 +25,8 @@
         <form id="searchForm" class="w-25">
             <div class="input-group">
                 <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
-                <input class="form-control border-start-0" type="search" name="q" value="${param.q}" placeholder="Search">
+                <input class="form-control border-start-0" type="search" name="q" value="${param.q}"
+                       placeholder="Search">
             </div>
         </form>
     </div>
@@ -78,17 +63,24 @@
             <c:forEach var="phone" items="${response.phones}">
                 <tr>
                     <td class="text-center align-middle">
-                        <img src="https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/${phone.imageUrl}" alt="${phone.model}" style="width: 60px;">
+                        <img src="https://raw.githubusercontent.com/andrewosipenko/phoneshop-ext-images/master/${phone.imageUrl}"
+                             alt="${phone.model}" style="width: 60px;">
                     </td>
-                    <td class="align-middle">${phone.brand}</td>
-                    <td class="align-middle">${phone.model}</td>
+                    <td class="align-middle">
+                            ${phone.brand}
+                    </td>
+                    <td class="align-middle">
+                        <a href="productDetails/${phone.id}">${phone.model}</a>
+                    </td>
                     <td class="align-middle">
                         <c:forEach var="color" items="${phone.colors}" varStatus="status">
                             ${color.code}${not status.last ? ', ' : ''}
                         </c:forEach>
                     </td>
                     <td class="align-middle">${phone.displaySizeInches}"</td>
-                    <td class="align-middle">${phone.price}$</td>
+                    <td class="align-middle">
+                        <fmt:formatNumber value="${phone.price}" type="currency" currencySymbol="$"/>
+                    </td>
                     <td class="align-middle">
                         <input type="text" class="form-control quantity-input" value="1" style="width: 70px;"/>
                         <p class="error-message text-danger small"></p>
