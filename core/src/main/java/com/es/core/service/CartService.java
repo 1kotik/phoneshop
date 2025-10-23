@@ -2,6 +2,7 @@ package com.es.core.service;
 
 import com.es.core.model.Cart;
 import com.es.core.model.CartTotals;
+import com.es.core.model.ErrorItem;
 import com.es.core.model.Phone;
 
 import java.util.Map;
@@ -17,7 +18,7 @@ public interface CartService {
      * key: {@link Phone#id}
      * value: quantity
      */
-    void update(Map<Long, Integer> items);
+    Map<Long, ErrorItem> update(Map<Long, Integer> items);
 
     void remove(Long phoneId);
     CartTotals getCartTotals();

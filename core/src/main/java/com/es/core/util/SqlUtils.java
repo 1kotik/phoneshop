@@ -66,12 +66,12 @@ public class SqlUtils {
 
         public static final String FIND_ALL_CONDITION = """
                        inner join %s s on s.%s = p.%s
-                       where price is not null and s.stock > 0
+                       where price is not null and s.stock - s.reserved > 0
                        and (:query is null or lower(p.brand) like lower(concat('%%', :query, '%%'))
                        or lower(p.model) like lower(concat('%%', :query, '%%')))""";
 
         public static final String FIND_ALL_QUERY = """
-                       select p.%s, p.brand, p.model, p.price, p.displaySizeInches, p.imageUrl, s.stock from %s p\s
+                       select p.%s, p.brand, p.model, p.price, p.displaySizeInches, p.imageUrl, s.stock, s.reserved from %s p\s
                        """ + FIND_ALL_CONDITION + """
                        order by %s %s
                        offset :offset limit :limit""";

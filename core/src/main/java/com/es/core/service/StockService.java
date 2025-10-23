@@ -6,4 +6,5 @@ public interface StockService {
     Stock findByPhoneId(Long phoneId);
     void save(Stock stock);
     void reserveItems(Long phoneId, Integer quantity);
+    void releaseItems(Long phoneId, Integer quantity);
 }

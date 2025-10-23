@@ -3,7 +3,6 @@ package com.es.core.dao;
 import com.es.core.enums.SortCriteria;
 import com.es.core.enums.SortOrder;
 import com.es.core.model.Phone;
-import com.es.core.model.PhoneListItem;
 import com.es.core.model.PhoneListResponse;
 
 import java.util.List;
