@@ -1,6 +1,7 @@
 package com.es.phoneshop.web.controller.exception_handlers;
 
 import com.es.core.exception.OutOfStockException;
+import com.es.core.exception.RemoveCartItemException;
 import com.es.core.util.AppConstants;
 import com.es.phoneshop.web.model.ErrorResponse;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,12 @@ public class AjaxExceptionHandler {
     @ExceptionHandler(OutOfStockException.class)
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
     public ErrorResponse handleOutOfStockException(OutOfStockException e) {
+        return new ErrorResponse(400, e.getMessage());
+    }
+
+    @ExceptionHandler(RemoveCartItemException.class)
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleRemoveCartItemException(RemoveCartItemException e) {
         return new ErrorResponse(400, e.getMessage());
     }
 

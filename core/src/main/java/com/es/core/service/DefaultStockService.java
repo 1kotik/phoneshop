@@ -50,10 +50,11 @@ public class DefaultStockService implements StockService {
         Stock stock = findByPhoneId(phoneId);
 
         if(stock.getReserved() < quantity) {
-            throw new IllegalArgumentException(AppConstants.ErrorMessages.INVALID_QUANTITY);
+            stock.setReserved(0);
+        } else {
+            stock.setReserved(stock.getReserved() - quantity);
         }
 
-        stock.setReserved(stock.getReserved() - quantity);
         stockDao.save(stock);
     }
 

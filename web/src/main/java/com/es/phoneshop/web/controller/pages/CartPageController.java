@@ -1,9 +1,11 @@
 package com.es.phoneshop.web.controller.pages;
 
+import com.es.core.model.Cart;
 import com.es.core.model.ErrorItem;
 import com.es.core.service.CartService;
 import com.es.core.util.AppConstants;
 import com.es.phoneshop.web.model.CartUpdateForm;
+import com.es.phoneshop.web.utils.ParameterExtractor;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
@@ -14,53 +16,47 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Controller
 @RequestMapping(value = "/cart")
 public class CartPageController {
     @Resource
     private CartService cartService;
-    private Map<Long, ErrorItem> updateErrors = new HashMap<>();
 
     @GetMapping
     public String getCart(Model model) {
-        CartUpdateForm cartUpdateForm = new CartUpdateForm(cartService.getCart());
+        Cart cart = cartService.getCart();
+        CartUpdateForm cartUpdateForm = new CartUpdateForm(cart);
         model.addAttribute(AppConstants.PageAttributes.CART_UPDATE_FORM, cartUpdateForm);
-        model.addAttribute(AppConstants.PageAttributes.CART, cartService.getCart());
+        model.addAttribute(AppConstants.PageAttributes.CART, cart);
         model.addAttribute(AppConstants.PageAttributes.CART_TOTALS, cartService.getCartTotals());
-        model.addAttribute(AppConstants.PageAttributes.CART_UPDATE_ERRORS, new HashMap<>(updateErrors));
-        updateErrors.clear();
         return AppConstants.Pages.CART;
     }
 
     @PutMapping
     public String updateCart(
             @ModelAttribute(AppConstants.PageAttributes.CART_UPDATE_FORM) @Valid CartUpdateForm cartUpdateForm,
-            BindingResult bindingResult) {
-        extractErrors(bindingResult, updateErrors, cartUpdateForm.getItems());
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes) {
+        Map<Long, ErrorItem> validationErrors = extractErrors(bindingResult, cartUpdateForm.getItems());
         Map<Long, ErrorItem> cartServiceErrors = cartService.update(cartUpdateForm.getItems());
-        updateErrors.putAll(cartServiceErrors);
+        validationErrors.putAll(cartServiceErrors);
+        redirectAttributes.addFlashAttribute(AppConstants.PageAttributes.CART_UPDATE_ERRORS, validationErrors);
         return AppConstants.Pages.REDIRECT_CART;
     }
 
-    private void extractErrors(BindingResult bindingResult, Map<Long, ErrorItem> validationErrors,
-                               Map<Long, Integer> items) {
+    private Map<Long, ErrorItem> extractErrors(BindingResult bindingResult, Map<Long, Integer> items) {
+        Map<Long, ErrorItem> validationErrors = new HashMap<>();
         for (FieldError fieldError : bindingResult.getFieldErrors()) {
-            Long itemId = extractItemIdFromBindingResultField(fieldError.getField());
+            Long itemId = ParameterExtractor.extractItemIdFromBindingResultField(fieldError.getField());
             validationErrors.put(itemId,
                     new ErrorItem(fieldError.getRejectedValue(), AppConstants.ErrorMessages.INVALID_FORMAT));
             items.remove(itemId);
         }
-    }
-
-    private Long extractItemIdFromBindingResultField(String fieldName) {
-        Pattern pattern = Pattern.compile("items\\[(\\d+)]");
-        Matcher matcher = pattern.matcher(fieldName);
-        return matcher.find() ? Long.valueOf(matcher.group(1)) : null;
+        return validationErrors;
     }
 }

@@ -85,13 +85,4 @@ class DefaultStockServiceTest {
         doNothing().when(stockDao).save(stock);
         assertDoesNotThrow(() -> defaultStockService.releaseItems(phoneId, quantity));
     }
-
-    @Test
-    void shouldThrowIllegalArgumentException() {
-        Long phoneId = 1L;
-        Integer quantity = 20;
-        Stock stock = new Stock(phoneId, 20, 15);
-        when(stockDao.findByPhoneId(phoneId)).thenReturn(Optional.of(stock));
-        assertThrows(IllegalArgumentException.class, () -> defaultStockService.releaseItems(phoneId, quantity));
-    }
 }

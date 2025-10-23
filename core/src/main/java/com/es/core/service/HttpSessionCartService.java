@@ -2,12 +2,15 @@ package com.es.core.service;
 
 import com.es.core.exception.OutOfStockException;
 import com.es.core.exception.PhoneNotFoundException;
+import com.es.core.exception.RemoveCartItemException;
 import com.es.core.model.Cart;
 import com.es.core.model.CartItem;
 import com.es.core.model.CartTotals;
 import com.es.core.model.ErrorItem;
 import com.es.core.model.Phone;
 import jakarta.annotation.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -27,16 +30,13 @@ public class HttpSessionCartService implements CartService {
     private PhoneService phoneService;
     @Resource
     private ReadWriteLock cartLock;
-    private Map<Long, ErrorItem> errors = new HashMap<>();
+    @Resource(name = "cartValidationErrors")
+    private Map<Long, ErrorItem> errors;
+    private static final Logger logger = LoggerFactory.getLogger(HttpSessionCartService.class);
 
     @Override
     public Cart getCart() {
-        cartLock.readLock().lock();
-        try {
-            return cart;
-        } finally {
-            cartLock.readLock().unlock();
-        }
+        return cart;
     }
 
     @Override
@@ -77,8 +77,9 @@ public class HttpSessionCartService implements CartService {
             stockService.releaseItems(phoneId, cartItem.getQuantity());
             cart.getCartItems().remove(cartItem);
             calculateTotals();
-        } catch (PhoneNotFoundException | IllegalArgumentException ignored) {
-
+        } catch (PhoneNotFoundException e) {
+            logger.warn(e.getMessage());
+            throw new RemoveCartItemException();
         } finally {
             cartLock.writeLock().unlock();
         }
@@ -86,12 +87,7 @@ public class HttpSessionCartService implements CartService {
 
     @Override
     public CartTotals getCartTotals() {
-        cartLock.readLock().lock();
-        try {
-            return new CartTotals(cart.getTotalQuantity(), cart.getTotalPrice());
-        } finally {
-            cartLock.readLock().unlock();
-        }
+        return new CartTotals(cart.getTotalQuantity(), cart.getTotalPrice());
     }
 
     private void updateCartItems(Map<Long, Integer> items) {
@@ -99,7 +95,7 @@ public class HttpSessionCartService implements CartService {
             try {
                 getItemInCart(item.getKey()).ifPresentOrElse(phone -> updateItemIfAlreadyInCart(phone, item.getValue()),
                         () -> addItemIfNotInCart(item.getKey(), item.getValue()));
-            } catch (OutOfStockException | IllegalArgumentException e) {
+            } catch (OutOfStockException e) {
                 errors.put(item.getKey(), new ErrorItem(String.valueOf(item.getValue()), e.getMessage()));
             }
         }

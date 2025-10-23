@@ -16,6 +16,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -50,8 +52,9 @@ class CartPageControllerTest {
         CartUpdateForm cartUpdateForm = new CartUpdateForm(Map.of(1L, 1, 2L, 2));
         BindingResult bindingResult = new BeanPropertyBindingResult(
                 cartUpdateForm, AppConstants.PageAttributes.CART_UPDATE_FORM);
+        RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
         when(cartService.update(cartUpdateForm.getItems())).thenReturn(Collections.emptyMap());
-        String view = cartPageController.updateCart(cartUpdateForm, bindingResult);
+        String view = cartPageController.updateCart(cartUpdateForm, bindingResult, redirectAttributes);
         assertEquals(AppConstants.Pages.REDIRECT_CART, view);
     }
 
@@ -61,10 +64,11 @@ class CartPageControllerTest {
         CartUpdateForm cartUpdateForm = new CartUpdateForm(items);
         BindingResult bindingResult = new BeanPropertyBindingResult(
                 cartUpdateForm, AppConstants.PageAttributes.CART_UPDATE_FORM);
+        RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
         bindingResult.addError(new FieldError(AppConstants.PageAttributes.CART_UPDATE_FORM,
                 "items[1]", "error"));
         when(cartService.update(cartUpdateForm.getItems())).thenReturn(Collections.emptyMap());
-        String view = cartPageController.updateCart(cartUpdateForm, bindingResult);
+        String view = cartPageController.updateCart(cartUpdateForm, bindingResult, redirectAttributes);
         assertEquals(AppConstants.Pages.REDIRECT_CART, view);
     }
 
