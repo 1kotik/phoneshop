@@ -1,13 +1,19 @@
 package util;
 
+import com.es.core.enums.OrderStatus;
 import com.es.core.model.CartItem;
 import com.es.core.model.Color;
+import com.es.core.model.Order;
+import com.es.core.model.OrderCustomerInfo;
+import com.es.core.model.OrderItem;
 import com.es.core.model.Phone;
 import com.es.core.model.PhoneListItem;
+import com.es.core.model.Stock;
 import com.es.core.util.SqlUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.jdbc.JdbcTestUtils;
 
 import java.math.BigDecimal;
@@ -15,6 +21,7 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 public class PhoneTestUtils {
     private PhoneTestUtils() {
@@ -46,6 +53,7 @@ public class PhoneTestUtils {
             JdbcTestUtils.deleteFromTables(jdbcTemplate, SqlUtils.Phone.TABLE_NAME);
             JdbcTestUtils.deleteFromTables(jdbcTemplate, SqlUtils.Stock.TABLE_NAME);
             JdbcTestUtils.deleteFromTables(jdbcTemplate, SqlUtils.Phone.PHONES_COLORS_RELATIONS_TABLE_NAME);
+            JdbcTestUtils.deleteFromTables(jdbcTemplate, SqlUtils.Order.TABLE_NAME);
             ScriptUtils.executeSqlScript(connection, new ClassPathResource("db/test-demodata.sql"));
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -61,9 +69,39 @@ public class PhoneTestUtils {
     }
 
     public static List<CartItem> getCartList() {
-        CartItem cartItem1 = new CartItem(getPhone(1L), 2);
-        CartItem cartItem2 = new CartItem(getPhone(2L), 2);
+        List<PhoneListItem> getPhoneList = getPhoneList();
+        CartItem cartItem1 = new CartItem(getPhoneList.get(0), 2);
+        CartItem cartItem2 = new CartItem(getPhoneList.get(1), 2);
         return new ArrayList<>(List.of(cartItem1, cartItem2));
+    }
+
+    public static List<Stock> getStockList() {
+        return new ArrayList<>(List.of(
+                new Stock(1L, 10, 1),
+                new Stock(2L, 10, 1)));
+    }
+
+    public static OrderCustomerInfo getOrderCustomerInfo() {
+        OrderCustomerInfo customerInfo = new OrderCustomerInfo();
+        customerInfo.setContactPhoneNo("+111111111111");
+        customerInfo.setAdditionalInformation("info");
+        customerInfo.setDeliveryAddress("address");
+        customerInfo.setFirstName("firstname");
+        customerInfo.setLastName("lastname");
+        return customerInfo;
+    }
+
+    public static Order getOrder() {
+        Order order = new Order();
+        order.setId(1L);
+        order.setSecureId(UUID.randomUUID());
+        order.setOrderItems(getCartList().stream().map(OrderItem::new).toList());
+        order.setDeliveryPrice(BigDecimal.ONE);
+        order.setStatus(OrderStatus.NEW);
+        order.setTotalPrice(BigDecimal.TEN.add(BigDecimal.ONE));
+        order.setCustomerInfo(getOrderCustomerInfo());
+        order.setSubtotal(BigDecimal.TEN);
+        return order;
     }
 
 }

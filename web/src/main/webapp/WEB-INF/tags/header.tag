@@ -10,19 +10,21 @@
             <a class="navbar-brand fs-2 fw-bold" href="${pageContext.servletContext.contextPath}">
                 <i class="bi bi-phone"></i> Phonify
             </a>
-            <div class="d-flex align-items-center">
-                <div class="ms-3">
-                    <a href="${pageContext.servletContext.contextPath}/cart"
-                       class="btn btn-light border text-decoration-none">
-                        My cart:
-                        <span id="total-items">${not empty cart ? cart.totalQuantity : 0} items</span>
-                        <span id="total-price">
+            <c:if test="${not empty cart}">
+                <div class="d-flex align-items-center">
+                    <div class="ms-3">
+                        <a href="${pageContext.servletContext.contextPath}/cart"
+                           class="btn btn-light border text-decoration-none">
+                            My cart:
+                            <span id="total-items">${not empty cart ? cart.totalQuantity : 0} items</span>
+                            <span id="total-price">
                             <fmt:formatNumber value="${not empty cart ? cart.totalPrice : 0}"
                                               type="currency" currencySymbol="$"/>
                         </span>
-                    </a>
+                        </a>
+                    </div>
                 </div>
-            </div>
+            </c:if>
         </div>
     </nav>
 </header>

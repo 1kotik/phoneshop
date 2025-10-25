@@ -5,11 +5,14 @@ import com.es.core.util.SqlUtils;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,6 +42,25 @@ public class JdbcStockDao implements StockDao {
                 .ifPresentOrElse(s -> updateStock(stock), () -> insertStock(stock));
     }
 
+    @Override
+    public List<Stock> findByPhoneIdSet(Collection<Long> stockIds) {
+        String sql = SqlUtils.Stock.SELECT_BY_ID_SET_QUERY;
+        SqlParameterSource params = new MapSqlParameterSource(SqlUtils.ID_SET, stockIds);
+        return namedParameterJdbcTemplate.query(sql, params, new BeanPropertyRowMapper<>(Stock.class));
+    }
+
+    @Override
+    @Transactional
+    public void saveAll(Collection<Stock> stocks) {
+        List<Stock> existingStocks = findByPhoneIdSet(stocks.stream().map(Stock::getPhoneId).toList());
+        List<Stock> nonExistingStocks = stocks.stream()
+                .filter(stock -> existingStocks.stream()
+                        .noneMatch(existingStock -> stock.getPhoneId().equals(existingStock.getPhoneId())))
+                .toList();
+        updateAll(existingStocks);
+        insertAll(nonExistingStocks);
+    }
+
     public void insertStock(Stock stock) {
         SqlParameterSource params = new BeanPropertySqlParameterSource(stock);
         jdbcInsertStock.execute(params);
@@ -48,5 +70,24 @@ public class JdbcStockDao implements StockDao {
         String sql = SqlUtils.Stock.UPDATE_STOCK_QUERY;
         SqlParameterSource params = new BeanPropertySqlParameterSource(stock);
         namedParameterJdbcTemplate.update(sql, params);
+    }
+
+    private void insertAll(Collection<Stock> stocks) {
+        if (!stocks.isEmpty()) {
+            SqlParameterSource[] params = stocks.stream()
+                    .map(BeanPropertySqlParameterSource::new)
+                    .toArray(SqlParameterSource[]::new);
+            jdbcInsertStock.executeBatch(params);
+        }
+    }
+
+    private void updateAll(Collection<Stock> stocks) {
+        String sql = SqlUtils.Stock.UPDATE_STOCK_QUERY;
+        if (!stocks.isEmpty()) {
+            SqlParameterSource[] params = stocks.stream()
+                    .map(BeanPropertySqlParameterSource::new)
+                    .toArray(SqlParameterSource[]::new);
+            namedParameterJdbcTemplate.batchUpdate(sql, params);
+        }
     }
 }

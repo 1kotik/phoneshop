@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import util.PhoneTestUtils;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +63,7 @@ class HttpSessionCartServiceTest {
         doNothing().when(writeLock).lock();
         doNothing().when(writeLock).unlock();
         when(cart.getCartItems()).thenReturn(cartItems);
-        when(phoneService.get(phoneId)).thenReturn(PhoneTestUtils.getPhone(phoneId));
+        when(phoneService.getBriefInfoById(phoneId)).thenReturn(PhoneTestUtils.getPhoneList().get(0));
         doNothing().when(stockService).reserveItems(phoneId, 2);
         assertDoesNotThrow(() -> httpSessionCartService.addPhone(phoneId, 2));
         assertEquals(3, cart.getCartItems().size());
@@ -133,5 +134,26 @@ class HttpSessionCartServiceTest {
         assertEquals(2, errors.size());
         assertEquals(2, cart.getCartItems().size());
         verify(cart).setTotalQuantity(4);
+    }
+
+    @Test
+    void shouldRemoveByPhoneIdSet() {
+        List<Long> idList = new ArrayList<>(List.of(1L, 2L));
+        when(cartLock.writeLock()).thenReturn(writeLock);
+        doNothing().when(writeLock).lock();
+        doNothing().when(writeLock).unlock();
+        when(cart.getCartItems()).thenReturn(cartItems);
+        doNothing().when(stockService).releaseItemsByPhoneIdMap(any());
+        assertDoesNotThrow(() -> httpSessionCartService.removeByPhoneIdSet(idList));
+        assertEquals(0, cart.getCartItems().size());
+        verify(cart).setTotalQuantity(0);
+    }
+
+    @Test
+    void shouldGetCartItemsMap() {
+        List<CartItem> items = PhoneTestUtils.getCartList();
+        Map<Long, Integer> expectedResult = Map.of(1L, 2, 2L ,2);
+        Map<Long, Integer> actualResult = httpSessionCartService.getCartItemsMap(items);
+        assertEquals(expectedResult, actualResult);
     }
 }

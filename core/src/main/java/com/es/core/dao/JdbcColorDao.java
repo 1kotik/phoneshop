@@ -2,7 +2,6 @@ package com.es.core.dao;
 
 import com.es.core.model.Color;
 import com.es.core.model.ColorWithPhoneId;
-import com.es.core.util.CustomStringUtils;
 import com.es.core.util.SqlUtils;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;

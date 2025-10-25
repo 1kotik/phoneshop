@@ -1,6 +1,7 @@
 package dao;
 
 import com.es.core.dao.JdbcStockDao;
+import com.es.core.model.PhoneListItem;
 import com.es.core.model.Stock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,9 +18,12 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import util.PhoneTestUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -78,6 +82,21 @@ class JdbcStockDaoTest {
         Optional<Stock> savedStock = stockDao.findByPhoneId(stock.getPhoneId());
         assertTrue(savedStock.isPresent());
         assertEquals(stock.getStock(), savedStock.get().getStock());
+    }
+
+    @Test
+    void shouldFindByPhoneIdSet() {
+        List<Long> phoneIds = List.of(1000L);
+        List<Stock> stocks = stockDao.findByPhoneIdSet(phoneIds);
+        assertEquals(phoneIds.size(), stocks.size());
+    }
+
+    @Test
+    void shouldSaveAll() {
+        List<Stock> stocks = PhoneTestUtils.getStockList();
+        stocks.get(0).setPhoneId(1000L);
+        stocks.get(1).setPhoneId(1001L);
+        assertDoesNotThrow(() -> stockDao.saveAll(stocks));
     }
 
     private static Stream<Arguments> stockSource() {

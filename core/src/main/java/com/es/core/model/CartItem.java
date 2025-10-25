@@ -1,22 +1,22 @@
 package com.es.core.model;
 
 public class CartItem {
-    private Phone phone;
-    private Integer quantity;
+    protected PhoneListItem phone;
+    protected Integer quantity;
 
     public CartItem() {
     }
 
-    public CartItem(Phone phone, Integer quantity) {
+    public CartItem(PhoneListItem phone, Integer quantity) {
         this.phone = phone;
         this.quantity = quantity;
     }
 
-    public Phone getPhone() {
+    public PhoneListItem getPhone() {
         return phone;
     }
 
-    public void setPhone(Phone phone) {
+    public void setPhone(PhoneListItem phone) {
         this.phone = phone;
     }
 

@@ -54,6 +54,11 @@ public class DefaultPhoneService implements PhoneService {
         return response;
     }
 
+    @Override
+    public PhoneListItem getBriefInfoById(Long id) {
+        return phoneDao.getBriefInfoById(id).orElseThrow(() -> new PhoneNotFoundException(id));
+    }
+
     private void setColors(List<PhoneListItem> phones) {
         Map<Long, Set<Color>> colorMap = colorDao
                 .findColorsByPhoneIds(phones.stream().map(PhoneListItem::getId).collect(Collectors.toSet()));

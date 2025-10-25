@@ -4,25 +4,16 @@ import com.es.core.enums.OrderStatus;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 public class Order {
     private Long id;
+    private UUID secureId;
     private List<OrderItem> orderItems;
-    /**
-     * A sum of order item prices;
-     */
     private BigDecimal subtotal;
     private BigDecimal deliveryPrice;
-    /**
-     * <code>subtotal</code> + <code>deliveryPrice</code>
-     */
     private BigDecimal totalPrice;
-
-    private String firstName;
-    private String lastName;
-    private String deliveryAddress;
-    private String contactPhoneNo;
-
+    private OrderCustomerInfo customerInfo;
     private OrderStatus status;
 
     public Long getId() {
@@ -65,43 +56,27 @@ public class Order {
         this.totalPrice = totalPrice;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getDeliveryAddress() {
-        return deliveryAddress;
-    }
-
-    public void setDeliveryAddress(String deliveryAddress) {
-        this.deliveryAddress = deliveryAddress;
-    }
-
-    public String getContactPhoneNo() {
-        return contactPhoneNo;
-    }
-
-    public void setContactPhoneNo(String contactPhoneNo) {
-        this.contactPhoneNo = contactPhoneNo;
-    }
-
     public OrderStatus getStatus() {
         return status;
     }
 
     public void setStatus(OrderStatus status) {
         this.status = status;
+    }
+
+    public OrderCustomerInfo getCustomerInfo() {
+        return customerInfo;
+    }
+
+    public void setCustomerInfo(OrderCustomerInfo customerInfo) {
+        this.customerInfo = customerInfo;
+    }
+
+    public UUID getSecureId() {
+        return secureId;
+    }
+
+    public void setSecureId(UUID secureId) {
+        this.secureId = secureId;
     }
 }

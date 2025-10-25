@@ -10,3 +10,8 @@ insert into phone2color (phoneId, colorId) values (1001, 1000);
 insert into phone2color (phoneId, colorId) values (1001, 1001);
 
 insert into stocks (phoneId, stock, reserved) values (1000, 10, 0);
+
+insert into orders(id, secureId, customerName, contactPhoneNo, deliveryAddress,
+                   additionalInformation, dateOfRegistration, subtotal, deliveryPrice, totalPrice, status)
+        values (1, '08728425-46e4-40c2-8586-3583d418b4ec', 'John Smith', '+111111111111', 'address',
+        'info', '2025-01-01 12:00:00', '15', '5', '20', 'New');
