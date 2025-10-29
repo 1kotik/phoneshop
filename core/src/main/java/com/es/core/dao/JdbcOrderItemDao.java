@@ -1,6 +1,8 @@
 package com.es.core.dao;
 
 import com.es.core.model.OrderItem;
+import com.es.core.model.Phone;
+import com.es.core.model.PhoneListItem;
 import jakarta.annotation.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -32,8 +34,12 @@ public class JdbcOrderItemDao implements OrderItemDao {
 
     private SqlParameterSource getInsertParameters(OrderItem item, Long orderId) {
         Map<String, Object> params = new HashMap<>();
+        PhoneListItem phone = item.getPhone();
+        if (phone == null) {
+            phone = new PhoneListItem();
+        }
         params.put("orderId", orderId);
-        params.put("phoneId", item.getPhone().getId());
+        params.put("phoneId", phone.getId());
         params.put("quantity", item.getQuantity());
         return new MapSqlParameterSource(params);
     }

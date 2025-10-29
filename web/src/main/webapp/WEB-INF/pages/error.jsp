@@ -19,7 +19,7 @@
 
 <main class="container my-5">
     <h1>Oops!</h1>
-    <h2 class="h5 mb-4">${message}</h2>
+    <h2 class="h5 mb-4">${error}</h2>
     <a href="${pageContext.servletContext.contextPath}" class="btn btn-primary">
         Back to Home
     </a>

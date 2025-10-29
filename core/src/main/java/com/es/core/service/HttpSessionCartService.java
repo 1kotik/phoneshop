@@ -7,8 +7,8 @@ import com.es.core.model.Cart;
 import com.es.core.model.CartItem;
 import com.es.core.model.CartTotals;
 import com.es.core.model.ErrorItem;
-import com.es.core.model.Phone;
 import com.es.core.model.PhoneListItem;
+import com.es.core.util.LogMessageCreator;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -82,7 +81,7 @@ public class HttpSessionCartService implements CartService {
             cart.getCartItems().remove(cartItem);
             calculateTotals();
         } catch (PhoneNotFoundException e) {
-            logger.warn(e.getMessage());
+            logger.warn(LogMessageCreator.createExceptionMessage(e, HttpSessionCartService.class));
             throw new RemoveCartItemException();
         } finally {
             cartLock.writeLock().unlock();

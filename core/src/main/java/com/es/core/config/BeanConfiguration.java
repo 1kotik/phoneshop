@@ -1,15 +1,12 @@
 package com.es.core.config;
 
 import com.es.core.model.ErrorItem;
-import com.es.core.model.Order;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -26,17 +23,5 @@ public class BeanConfiguration {
     @Scope(scopeName = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
     public Map<Long, ErrorItem> cartValidationErrors() {
         return new HashMap<>();
-    }
-
-    @Bean
-    @Scope(scopeName = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
-    public Order orderToPlace() {
-        return new Order();
-    }
-
-    @Bean
-    @Scope(scopeName = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
-    public ReadWriteLock orderLock() {
-        return new ReentrantReadWriteLock();
     }
 }

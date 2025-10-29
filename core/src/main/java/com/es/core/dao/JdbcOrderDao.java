@@ -1,6 +1,7 @@
 package com.es.core.dao;
 
 import com.es.core.model.Order;
+import com.es.core.model.OrderCustomerInfo;
 import jakarta.annotation.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -8,6 +9,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -25,6 +27,7 @@ public class JdbcOrderDao implements OrderDao {
     private OrderItemDao orderItemDao;
 
     @Override
+    @Transactional
     public Long save(Order order) {
         SqlParameterSource params = getInsertParameters(order);
         Long id = jdbcInsertOrder.executeAndReturnKey(params).longValue();
@@ -34,17 +37,23 @@ public class JdbcOrderDao implements OrderDao {
 
     SqlParameterSource getInsertParameters(Order order) {
         Map<String, Object> params = new HashMap<>();
+        OrderCustomerInfo customerInfo = order.getCustomerInfo();
+
+        if (customerInfo == null) {
+            customerInfo = new OrderCustomerInfo();
+        }
+
         params.put("secureId", order.getSecureId());
         params.put("customerName", String.format("%s %s",
-                order.getCustomerInfo().getFirstName(), order.getCustomerInfo().getLastName()));
-        params.put("contactPhoneNo", order.getCustomerInfo().getContactPhoneNo());
-        params.put("deliveryAddress", order.getCustomerInfo().getDeliveryAddress());
+                customerInfo.getFirstName(), customerInfo.getLastName()));
+        params.put("contactPhoneNo", customerInfo.getContactPhoneNo());
+        params.put("deliveryAddress", customerInfo.getDeliveryAddress());
         params.put("dateOfRegistration", LocalDateTime.now());
         params.put("totalPrice", order.getTotalPrice());
         params.put("status", order.getStatus().getValue());
         params.put("subtotal", order.getSubtotal());
         params.put("deliveryPrice", order.getDeliveryPrice());
-        params.put("additionalInformation", order.getCustomerInfo().getAdditionalInformation());
+        params.put("additionalInformation", customerInfo.getAdditionalInformation());
         return new MapSqlParameterSource(params);
     }
 }

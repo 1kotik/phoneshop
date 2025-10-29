@@ -107,6 +107,6 @@ public class DefaultStockService implements StockService {
             throw new OutOfStockException();
         }
         stock.setStock(oldStock - deltaQuantity);
-        stock.setReserved(oldStock - deltaQuantity);
+        stock.setReserved(stock.getReserved() - deltaQuantity);
     }
 }

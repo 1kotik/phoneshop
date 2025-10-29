@@ -16,11 +16,11 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.bind.support.SimpleSessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
-import java.math.BigDecimal;
-import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -39,7 +39,6 @@ class OrderPageControllerTest {
     void shouldGetOrderPage() {
         Order order = new Order();
         Model model = new ExtendedModelMap();
-        when(cart.getTotalPrice()).thenReturn(BigDecimal.TEN);
         when(orderService.createOrder()).thenReturn(order);
         String view = orderPageController.getOrder(model);
         assertEquals(AppConstants.Pages.ORDER, view);
@@ -52,10 +51,12 @@ class OrderPageControllerTest {
         BindingResult bindingResult = new BeanPropertyBindingResult(customerInfo,
                 AppConstants.PageAttributes.ORDER_CUSTOMER_INFO);
         RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
+        SessionStatus sessionStatus = new SimpleSessionStatus();
         Order order = new Order();
         order.setSecureId(UUID.randomUUID());
-        when(orderService.placeOrder(customerInfo)).thenReturn(order);
-        String view = orderPageController.placeOrder(customerInfo, bindingResult, redirectAttributes);
+        when(orderService.placeOrder(order, customerInfo)).thenReturn(order);
+        String view = orderPageController.placeOrder(customerInfo, bindingResult, redirectAttributes,
+                order, sessionStatus);
         assertEquals(String.format("%s/%s", AppConstants.Pages.REDIRECT_ORDER_OVERVIEW, order.getSecureId()), view);
         assertEquals(order, redirectAttributes.getFlashAttributes().get(AppConstants.PageAttributes.ORDER));
         assertEquals(1, redirectAttributes.getFlashAttributes().size());
@@ -66,9 +67,12 @@ class OrderPageControllerTest {
         OrderCustomerInfo customerInfo = new OrderCustomerInfo();
         BindingResult bindingResult = new BeanPropertyBindingResult(customerInfo,
                 AppConstants.PageAttributes.ORDER_CUSTOMER_INFO);
+        SessionStatus sessionStatus = new SimpleSessionStatus();
+        Order order = new Order();
         RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
         bindingResult.addError(new ObjectError("firstName", "error"));
-        String view = orderPageController.placeOrder(customerInfo, bindingResult, redirectAttributes);
+        String view = orderPageController.placeOrder(customerInfo, bindingResult, redirectAttributes,
+                order, sessionStatus);
         assertEquals(AppConstants.Pages.REDIRECT_ORDER, view);
         assertEquals(customerInfo, redirectAttributes.getFlashAttributes()
                 .get(AppConstants.PageAttributes.ORDER_CUSTOMER_INFO));

@@ -31,12 +31,12 @@ public class SqlUtils {
         public static final String TABLE_NAME = "stocks";
         public static final String PHONE_ID = "phoneId";
         public static final String FIND_BY_PHONE_ID_QUERY = String.format("""
-                select * from %s where %s = ?""", TABLE_NAME, PHONE_ID);
+                select * from %s where %s = ? for update""", TABLE_NAME, PHONE_ID);
         public static final String UPDATE_STOCK_QUERY = String.format("""
                 update %s set stock = :stock, reserved = :reserved where %s = :phoneId""",
                 TABLE_NAME, PHONE_ID);
         public static final String SELECT_BY_ID_SET_QUERY = String.format("""
-                select * from %s where %s in (:%s)
+                select * from %s where %s in (:%s) for update
                 """, TABLE_NAME, PHONE_ID, ID_SET);
     }
 

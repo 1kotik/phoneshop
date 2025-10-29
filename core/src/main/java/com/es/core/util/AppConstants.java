@@ -17,12 +17,13 @@ public class AppConstants {
         public static final String REDIRECT_ORDER_OVERVIEW = "redirect:/orderOverview";
         public static final String ORDER_OVERVIEW = "orderOverview";
         public static final String REDIRECT_ORDER = "redirect:/order";
+        public static final String REDIRECT_ERROR = "redirect:/error";
     }
 
     public static class ErrorMessages {
         private ErrorMessages() {
         }
-
+        public static final String ORDER_HAS_ALREADY_BEEN_PLACED = "Your order has already been placed. Return to main page";
         public static final String INVALID_QUANTITY = "Invalid quantity";
         public static final String INVALID_FORMAT = "Invalid format";
         public static final String INTERNAL_ERROR = "Something went wrong";

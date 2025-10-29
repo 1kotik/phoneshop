@@ -44,14 +44,8 @@ class DefaultOrderServiceTest {
 
     @BeforeEach
     void setUp() throws NoSuchFieldException, IllegalAccessException {
-        Field lockField = DefaultOrderService.class.getDeclaredField("orderLock");
-        Field orderField = DefaultOrderService.class.getDeclaredField("orderToPlace");
         Field deliveryPriceField = DefaultOrderService.class.getDeclaredField("deliveryPrice");
-        lockField.setAccessible(true);
-        orderField.setAccessible(true);
         deliveryPriceField.setAccessible(true);
-        lockField.set(defaultOrderService, new ReentrantReadWriteLock());
-        orderField.set(defaultOrderService, PhoneTestUtils.getOrder());
         deliveryPriceField.set(defaultOrderService, BigDecimal.ONE);
     }
 
@@ -81,7 +75,8 @@ class DefaultOrderServiceTest {
         doNothing().when(stockService).updateStocks(stockMap, orderStatus);
         when(orderDao.save(any())).thenReturn(1L);
         doNothing().when(cartService).clearCart();
-        Order actualOrder = defaultOrderService.placeOrder(PhoneTestUtils.getOrderCustomerInfo());
+        Order actualOrder = defaultOrderService
+                .placeOrder(PhoneTestUtils.getOrder(), PhoneTestUtils.getOrderCustomerInfo());
         assertEquals(actualOrder.getOrderItems().size(), expectedOrder.getOrderItems().size());
         assertEquals(actualOrder.getTotalPrice(), expectedOrder.getTotalPrice());
     }
