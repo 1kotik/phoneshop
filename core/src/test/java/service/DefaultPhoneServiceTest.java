@@ -6,6 +6,7 @@ import com.es.core.enums.SortCriteria;
 import com.es.core.enums.SortOrder;
 import com.es.core.exception.PhoneNotFoundException;
 import com.es.core.model.Phone;
+import com.es.core.model.PhoneListItem;
 import com.es.core.model.PhoneListResponse;
 import com.es.core.service.DefaultPhoneService;
 import org.junit.jupiter.api.Test;
@@ -76,5 +77,22 @@ class DefaultPhoneServiceTest {
                 .findAll("brand1", "brand", "asc", 1, 10);
         assertEquals(1, response.getTotalPages());
         assertEquals(1, response.getPhones().size());
+    }
+
+    @Test
+    void shouldGetBriefInfoById() {
+        Long phoneId = 1L;
+        PhoneListItem expectedPhone = PhoneTestUtils.getPhoneList().get(0);
+        when(phoneDao.getBriefInfoById(phoneId)).thenReturn(Optional.of(expectedPhone));
+        PhoneListItem actualPhone = defaultPhoneService.getBriefInfoById(phoneId);
+        assertEquals(phoneId, actualPhone.getId());
+        assertEquals(expectedPhone, actualPhone);
+    }
+
+    @Test
+    void shouldThrowPhoneNotFoundExceptionWhenGetBriefInfoById() {
+        Long phoneId = 111L;
+        when(phoneDao.getBriefInfoById(phoneId)).thenReturn(Optional.empty());
+        assertThrows(PhoneNotFoundException.class, () -> defaultPhoneService.getBriefInfoById(phoneId));
     }
 }

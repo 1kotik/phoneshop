@@ -25,6 +25,10 @@
        class="btn btn-light border text-decoration-none">
         Back to product list
     </a>
+    <a href="${pageContext.servletContext.contextPath}/order"
+       class="btn btn-light border text-decoration-none">
+        Order
+    </a>
     <span id="delete-from-cart-msg" class="d-block mb-3"></span>
 
     <div class="table-responsive">

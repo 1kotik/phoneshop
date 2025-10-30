@@ -1,32 +1,34 @@
 package com.es.core.model;
 
-public class OrderItem {
-    private Long id;
-    private Phone phone;
-    private Order order;
-    private Long quantity;
+import java.util.UUID;
 
-    public Phone getPhone() {
-        return phone;
+public class OrderItem extends CartItem {
+    private UUID id;
+    private UUID orderId;
+
+    public OrderItem(PhoneListItem phone, Integer quantity, UUID id, UUID orderId) {
+        super(phone, quantity);
+        this.id = id;
+        this.orderId = orderId;
     }
 
-    public void setPhone(final Phone phone) {
-        this.phone = phone;
+    public OrderItem(CartItem cartItem) {
+        super(cartItem.getPhone(), cartItem.getQuantity());
     }
 
-    public Order getOrder() {
-        return order;
+    public UUID getId() {
+        return id;
     }
 
-    public void setOrder(final Order order) {
-        this.order = order;
+    public void setId(UUID id) {
+        this.id = id;
     }
 
-    public Long getQuantity() {
-        return quantity;
+    public UUID getOrderId() {
+        return orderId;
     }
 
-    public void setQuantity(final Long quantity) {
-        this.quantity = quantity;
+    public void setOrderId(UUID orderId) {
+        this.orderId = orderId;
     }
 }

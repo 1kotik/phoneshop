@@ -7,18 +7,21 @@ import com.es.core.model.Cart;
 import com.es.core.model.CartItem;
 import com.es.core.model.CartTotals;
 import com.es.core.model.ErrorItem;
-import com.es.core.model.Phone;
+import com.es.core.model.PhoneListItem;
+import com.es.core.util.LogMessageCreator;
 import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.locks.ReadWriteLock;
+import java.util.stream.Collectors;
 
 @Service
 public class HttpSessionCartService implements CartService {
@@ -78,7 +81,7 @@ public class HttpSessionCartService implements CartService {
             cart.getCartItems().remove(cartItem);
             calculateTotals();
         } catch (PhoneNotFoundException e) {
-            logger.warn(e.getMessage());
+            logger.warn(LogMessageCreator.createExceptionMessage(e, HttpSessionCartService.class));
             throw new RemoveCartItemException();
         } finally {
             cartLock.writeLock().unlock();
@@ -101,6 +104,36 @@ public class HttpSessionCartService implements CartService {
         }
     }
 
+    @Override
+    public Map<Long, Integer> getCartItemsMap(List<? extends CartItem> cartItems) {
+        return cartItems.stream()
+                .collect(Collectors.toMap(item -> item.getPhone().getId(), CartItem::getQuantity));
+    }
+
+    @Override
+    public void removeByPhoneIdSet(Collection<Long> phoneIds) {
+        cartLock.writeLock().lock();
+        try {
+            List<CartItem> itemsToRemove = cart.getCartItems().stream()
+                    .filter(item -> phoneIds.contains(item.getPhone().getId()))
+                    .toList();
+            if (!itemsToRemove.isEmpty()) {
+                stockService.releaseItemsByPhoneIdMap(getCartItemsMap(itemsToRemove));
+                cart.getCartItems().removeAll(itemsToRemove);
+                calculateTotals();
+            }
+        } finally {
+            cartLock.writeLock().unlock();
+        }
+    }
+
+    @Override
+    public void clearCart() {
+        cart.getCartItems().clear();
+        cart.setTotalQuantity(0);
+        cart.setTotalPrice(BigDecimal.ZERO);
+    }
+
     private Optional<CartItem> getItemInCart(Long phoneId) {
         return cart.getCartItems().stream()
                 .filter(item -> phoneId.equals(item.getPhone().getId()))
@@ -108,7 +141,7 @@ public class HttpSessionCartService implements CartService {
     }
 
     private void addItemIfNotInCart(Long phoneId, Integer quantity) {
-        Phone phone = phoneService.get(phoneId);
+        PhoneListItem phone = phoneService.getBriefInfoById(phoneId);
         stockService.reserveItems(phoneId, quantity);
         cart.getCartItems().add(new CartItem(phone, quantity));
     }

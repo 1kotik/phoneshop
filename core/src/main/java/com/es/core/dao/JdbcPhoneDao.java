@@ -6,6 +6,7 @@ import com.es.core.model.Color;
 import com.es.core.model.Phone;
 import com.es.core.model.PhoneListItem;
 import com.es.core.model.PhoneListResponse;
+import com.es.core.util.PhoneListItemRowMapper;
 import com.es.core.util.PhoneRowMapper;
 import com.es.core.util.SqlUtils;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
@@ -117,6 +118,19 @@ public class JdbcPhoneDao implements PhoneDao {
                 return colors.size();
             }
         });
+    }
+
+    @Override
+    public Optional<PhoneListItem> getBriefInfoById(Long id) {
+        String sql = SqlUtils.Phone.FIND_BRIEF_INFO_BY_ID_QUERY;
+        List<PhoneListItem> phones = jdbcTemplate.query(sql, new PhoneListItemRowMapper(), id);
+        Optional<PhoneListItem> result = phones.stream().findFirst();
+        if (result.isPresent()) {
+            Set<Color> colors = new HashSet<>();
+            phones.forEach(phone -> colors.addAll(phone.getColors()));
+            result.get().setColors(colors);
+        }
+        return result;
     }
 
     private void deletePhoneColorRelations(Long phoneId) {
