@@ -3,9 +3,11 @@ package com.es.core.service;
 import com.es.core.dao.OrderDao;
 import com.es.core.enums.OrderStatus;
 import com.es.core.exception.InconsistentOrderException;
+import com.es.core.exception.OrderNotFoundException;
 import com.es.core.exception.OutOfStockException;
 import com.es.core.model.Cart;
 import com.es.core.model.Order;
+import com.es.core.model.OrderBriefInfo;
 import com.es.core.model.OrderCustomerInfo;
 import com.es.core.model.OrderItem;
 import com.es.core.model.Stock;
@@ -57,6 +59,30 @@ public class DefaultOrderService implements OrderService {
         stockService.updateStocks(cartService.getCartItemsMap(order.getOrderItems()), order.getStatus());
         cartService.clearCart();
         return order;
+    }
+
+    @Override
+    public List<OrderBriefInfo> findAll() {
+        return orderDao.findAll();
+    }
+
+    @Override
+    public Order findById(Long id) {
+        return orderDao.findById(id).orElseThrow(OrderNotFoundException::new);
+    }
+
+    @Override
+    public void updateOrderStatus(Long id, String status) {
+        OrderStatus newStatus = OrderStatus.getOrderStatus(status);
+        int affectedRows = orderDao.updateOrderStatus(id, newStatus);
+        if (affectedRows == 0) {
+            throw new OrderNotFoundException();
+        }
+    }
+
+    @Override
+    public Order findBySecureId(UUID secureId) {
+        return orderDao.findBySecureId(secureId).orElseThrow(OrderNotFoundException::new);
     }
 
     private void checkStock(Order order) {

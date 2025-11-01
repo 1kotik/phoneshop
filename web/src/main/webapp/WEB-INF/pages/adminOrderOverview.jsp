@@ -1,4 +1,3 @@
-<%@ page import="java.time.format.DateTimeFormatter" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -10,27 +9,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order - Phonify</title>
+    <title>Order Confirmation - Phonify</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="${pageContext.servletContext.contextPath}/scripts/updateOrderStatus.js"></script>
 </head>
 <body data-context-path="${pageContext.servletContext.contextPath}">
 
 <tags:header cart=""/>
 
-<main class="container my-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3 mb-0">Order</h1>
-        <a href="${pageContext.servletContext.contextPath}/cart"
-           class="btn btn-light border text-decoration-none">
-            Back to cart
-        </a>
-    </div>
 
-    <c:if test="${not empty error}">
-        <div class="alert alert-info">${error}</div>
-    </c:if>
+<main class="container my-4">
+    <span id="update-order-status-msg" class="d-block mb-3"></span>
+    <div class="d-flex align-items-center justify-content-between mb-2">
+        <span>Order number: ${order.id}</span>
+        <div>
+            <span>Order status: </span>
+            <span id="order-status">${order.status.value}</span>
+        </div>
+    </div>
 
     <c:if test="${not empty order.orderItems}">
         <div class="card-body">
@@ -94,51 +93,52 @@
         </div>
 
         <div class="card">
-            <div class="card-header">
-                <h2 class="h5 mb-0">Details</h2>
-            </div>
             <div class="card-body">
-                <form:form action="${pageContext.servletContext.contextPath}/order" method="post"
-                           modelAttribute="orderCustomerInfo">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <tags:customerDetailsInput error="${validationErrors['firstName']}"
-                                                       parameterName="firstName" value=""
-                                                       label="First name*"/>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <tags:customerDetailsInput error="${validationErrors['lastName']}"
-                                                       parameterName="lastName" value=""
-                                                       label="Last name*"/>
-                        </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <strong>First name:</strong>
+                        <p class="mb-0">${order.customerInfo.firstName}</p>
                     </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>Last name:</strong>
+                        <p class="mb-0">${order.customerInfo.lastName}</p>
+                    </div>
+                </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <tags:customerDetailsInput error="${validationErrors['contactPhoneNo']}"
-                                                       parameterName="contactPhoneNo" value=""
-                                                       label="Phone*"/>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <tags:customerDetailsInput error="${validationErrors['deliveryAddress']}"
-                                                       parameterName="deliveryAddress" value=""
-                                                       label="Address*"/>
-                        </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <strong>Phone:</strong>
+                        <p class="mb-0">${order.customerInfo.contactPhoneNo}</p>
                     </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>Address:</strong>
+                        <p class="mb-0">${order.customerInfo.deliveryAddress}</p>
+                    </div>
+                </div>
 
-                    <div class="mb-4">
-                        <label for="additionalInformation" class="form-label">Additional information</label>
-                        <form:textarea path="additionalInformation" class="form-control"
-                                       rows="4" id="additionalInformation"/>
+                <c:if test="${not empty order.customerInfo.additionalInformation}">
+                    <div class="mb-3">
+                        <strong>Additional information:</strong>
+                        <p class="mb-0">${order.customerInfo.additionalInformation}</p>
                     </div>
-
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <button type="submit" class="btn btn-light border text-decoration-none">
-                            Order
-                        </button>
-                    </div>
-                </form:form>
+                </c:if>
             </div>
+        </div>
+        <div class="d-flex gap-2 mt-3">
+            <a href="${pageContext.servletContext.contextPath}/admin/orders"
+               class="btn btn-light border text-decoration-none">
+                Back
+            </a>
+            <button type="button" class="btn btn-light border update-order-status-btn"
+                    data-order-id="${order.id}"
+                    data-order-status="Delivered">
+                Delivered
+            </button>
+            <button type="button" class="btn btn-light border update-order-status-btn"
+                    data-order-id="${order.id}"
+                    data-order-status="Rejected">
+                Rejected
+            </button>
         </div>
     </c:if>
 </main>

@@ -10,8 +10,12 @@
             <a class="navbar-brand fs-2 fw-bold" href="${pageContext.servletContext.contextPath}">
                 <i class="bi bi-phone"></i> Phonify
             </a>
-            <c:if test="${not empty cart}">
-                <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <a href="${pageContext.servletContext.contextPath}/admin/orders"
+                   class="btn btn-light border text-decoration-none">
+                    Admin
+                </a>
+                <c:if test="${not empty cart}">
                     <div class="ms-3">
                         <a href="${pageContext.servletContext.contextPath}/cart"
                            class="btn btn-light border text-decoration-none">
@@ -23,8 +27,8 @@
                         </span>
                         </a>
                     </div>
-                </div>
-            </c:if>
+                </c:if>
+            </div>
         </div>
     </nav>
 </header>

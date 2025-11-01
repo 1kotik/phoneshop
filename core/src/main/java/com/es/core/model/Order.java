@@ -3,13 +3,14 @@ package com.es.core.model;
 import com.es.core.enums.OrderStatus;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class Order {
     private Long id;
     private UUID secureId;
-    private List<OrderItem> orderItems;
+    private List<OrderItem> orderItems = new ArrayList<>();
     private BigDecimal subtotal;
     private BigDecimal deliveryPrice;
     private BigDecimal totalPrice;

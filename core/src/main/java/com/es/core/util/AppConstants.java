@@ -1,5 +1,7 @@
 package com.es.core.util;
 
+import java.time.format.DateTimeFormatter;
+
 public class AppConstants {
     private AppConstants() {
     }
@@ -18,6 +20,8 @@ public class AppConstants {
         public static final String ORDER_OVERVIEW = "orderOverview";
         public static final String REDIRECT_ORDER = "redirect:/order";
         public static final String REDIRECT_ERROR = "redirect:/error";
+        public static final String ADMIN_ORDERS = "adminOrders";
+        public static final String ADMIN_ORDER_OVERVIEW = "adminOrderOverview";
     }
 
     public static class ErrorMessages {
@@ -44,5 +48,11 @@ public class AppConstants {
         public static final String ORDER = "order";
         public static final String VALIDATION_ERRORS = "validationErrors";
         public static final String ERROR = "error";
+        public static final String ADMIN_ORDERS = "orders";
+    }
+
+    public static class DefaultConstants {
+        private DefaultConstants() {}
+        public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
     }
 }

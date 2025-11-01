@@ -1,7 +1,12 @@
 package com.es.core.dao;
 
+import com.es.core.enums.OrderStatus;
 import com.es.core.model.Order;
+import com.es.core.model.OrderBriefInfo;
 import com.es.core.model.OrderCustomerInfo;
+import com.es.core.util.OrderBriefInfoRowMapper;
+import com.es.core.util.OrderRowMapper;
+import com.es.core.util.SqlUtils;
 import jakarta.annotation.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -13,7 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 @Component
 public class JdbcOrderDao implements OrderDao {
@@ -35,6 +43,34 @@ public class JdbcOrderDao implements OrderDao {
         return id;
     }
 
+    @Override
+    public List<OrderBriefInfo> findAll() {
+        return namedParameterJdbcTemplate.query(SqlUtils.Order.FIND_ALL_ORDERS_QUERY, new OrderBriefInfoRowMapper());
+    }
+
+    @Override
+    public Optional<Order> findById(Long id) {
+        SqlParameterSource params = new MapSqlParameterSource("orderId", id);
+        List<Order> orders = namedParameterJdbcTemplate
+                .query(SqlUtils.Order.FIND_BY_ID_QUERY, params, new OrderRowMapper());
+        return orders.stream().findFirst();
+    }
+
+    @Override
+    public int updateOrderStatus(Long id, OrderStatus status) {
+        SqlParameterSource params = new MapSqlParameterSource(
+                Map.of("orderId", id, "orderStatus", status.getValue()));
+        return namedParameterJdbcTemplate.update(SqlUtils.Order.UPDATE_ORDER_STATUS_QUERY, params);
+    }
+
+    @Override
+    public Optional<Order> findBySecureId(UUID secureId) {
+        SqlParameterSource params = new MapSqlParameterSource("secureOrderId", secureId);
+        List<Order> orders = namedParameterJdbcTemplate
+                .query(SqlUtils.Order.FIND_BY_SECURE_ID_QUERY, params, new OrderRowMapper());
+        return orders.stream().findFirst();
+    }
+
     SqlParameterSource getInsertParameters(Order order) {
         Map<String, Object> params = new HashMap<>();
         OrderCustomerInfo customerInfo = order.getCustomerInfo();
@@ -44,8 +80,8 @@ public class JdbcOrderDao implements OrderDao {
         }
 
         params.put("secureId", order.getSecureId());
-        params.put("customerName", String.format("%s %s",
-                customerInfo.getFirstName(), customerInfo.getLastName()));
+        params.put("customerFirstName", customerInfo.getFirstName());
+        params.put("customerLastName", customerInfo.getLastName());
         params.put("contactPhoneNo", customerInfo.getContactPhoneNo());
         params.put("deliveryAddress", customerInfo.getDeliveryAddress());
         params.put("dateOfRegistration", LocalDateTime.now());

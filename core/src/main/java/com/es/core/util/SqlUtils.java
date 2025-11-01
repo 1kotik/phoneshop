@@ -89,7 +89,7 @@ public class SqlUtils {
                 PHONES_COLORS_RELATIONS_TABLE_NAME, PHONES_COLORS_RELATIONS_PHONE_ID, PHONES_COLORS_RELATIONS_COLOR_ID);
 
         public static final String FIND_BRIEF_INFO_BY_ID_QUERY = String.format("""
-                select p.%s, p.brand, p.model, p.price, p.displaySizeInches, p.imageUrl,
+                select p.%s as phoneId, p.brand, p.model, p.price, p.displaySizeInches, p.imageUrl,
                 c.id as colorId, c.code as colorCode from %s p
                 left join %s pc on pc.%s = p.%s
                 left join %s c on c.%s = pc.%s
@@ -103,11 +103,36 @@ public class SqlUtils {
         private Order() {}
         public static final String TABLE_NAME = "orders";
         public static final String ORDER_ID = "id";
+        public static final String FIND_ALL_ORDERS_QUERY = String.format("""
+                select %s, customerFirstName, customerLastName, contactPhoneNo, deliveryAddress, dateOfRegistration, totalPrice, status
+                from %s order by dateOfRegistration desc""", ORDER_ID, TABLE_NAME);
+        public static final String FIND_ORDER_QUERY_PART = String.format("""
+                select o.%s, o.secureId, customerFirstName, customerLastName, o.contactPhoneNo, o.deliveryAddress,
+                o.additionalInformation, o.dateOfRegistration, o.subtotal, o.deliveryPrice,
+                o.totalPrice, o.status, oi.id as itemId, oi.quantity,
+                p.id as phoneId, p.brand, p.model, p.price, p.displaySizeInches,
+                p.imageUrl, c.id as colorId, c.code as colorCode from %s o
+                left join %s oi on o.%s = oi.%s
+                left join %s p on oi.%s = p.%s
+                left join %s pc on p.%s = pc.%s
+                left join %s c on pc.%s = c.%s""", ORDER_ID, TABLE_NAME, OrderItem.TABLE_NAME, ORDER_ID, OrderItem.ORDER_ID,
+                Phone.TABLE_NAME, OrderItem.PHONE_ID, Phone.PHONE_ID,
+                Phone.PHONES_COLORS_RELATIONS_TABLE_NAME, Phone.PHONE_ID, Phone.PHONES_COLORS_RELATIONS_PHONE_ID,
+                Color.TABLE_NAME, Phone.PHONES_COLORS_RELATIONS_COLOR_ID, Color.COLOR_ID);
+        public static final String FIND_BY_ID_QUERY = String.format("%s where o.%s = :orderId",
+                FIND_ORDER_QUERY_PART, ORDER_ID);
+        public static final String UPDATE_ORDER_STATUS_QUERY = String
+                .format("update %s set status = :orderStatus where %s = :orderId", TABLE_NAME, ORDER_ID);
+        public static final String FIND_BY_SECURE_ID_QUERY = String.format("%s where o.secureId = :secureOrderId",
+                FIND_ORDER_QUERY_PART);
     }
 
     public static class OrderItem {
         private OrderItem() {}
         public static final String TABLE_NAME = "orderItems";
+        public static final String ORDER_ITEM_ID = "id";
+        public static final String ORDER_ID = "orderId";
+        public static final String PHONE_ID = "phoneId";
     }
 
 }

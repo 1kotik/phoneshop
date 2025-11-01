@@ -18,7 +18,7 @@ public class AjaxExceptionHandler {
     @ExceptionHandler(exception = {MethodArgumentTypeMismatchException.class, HandlerMethodValidationException.class,
             MissingServletRequestParameterException.class})
     @ResponseStatus(code = HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleArgumentNotValidException() {
+    public ErrorResponse handleArgumentNotValidException(Exception e) {
         return new ErrorResponse(400, AppConstants.ErrorMessages.INVALID_FORMAT);
     }
 

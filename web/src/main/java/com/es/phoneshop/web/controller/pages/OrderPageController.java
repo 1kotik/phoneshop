@@ -66,7 +66,7 @@ public class OrderPageController {
         Order placedOrder = orderService.placeOrder(order, customerInfo);
         redirectAttributes.addFlashAttribute(AppConstants.PageAttributes.ORDER, placedOrder);
         sessionStatus.setComplete();
-        return String.format("%s/%s", AppConstants.Pages.REDIRECT_ORDER_OVERVIEW, order.getSecureId());
+        return String.format("%s/%s", AppConstants.Pages.REDIRECT_ORDER_OVERVIEW, placedOrder.getSecureId());
     }
 
     private Map<String, String> extractErrors(BindingResult bindingResult) {

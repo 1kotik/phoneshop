@@ -1,7 +1,6 @@
 package com.es.core.util;
 
 import com.es.core.model.Color;
-import com.es.core.model.Phone;
 import com.es.core.model.PhoneListItem;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -13,7 +12,7 @@ public class PhoneListItemRowMapper implements RowMapper<PhoneListItem> {
     @Override
     public PhoneListItem mapRow(ResultSet rs, int rowNum) throws SQLException {
         PhoneListItem phone = new PhoneListItem();
-        phone.setId(rs.getLong("id"));
+        phone.setId(rs.getLong("phoneId"));
         phone.setBrand(rs.getString("brand"));
         phone.setModel(rs.getString("model"));
         phone.setPrice(rs.getBigDecimal("price"));
