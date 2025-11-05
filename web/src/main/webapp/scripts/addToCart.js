@@ -21,7 +21,7 @@ $(document).ready(function () {
         button.prop('disabled', true).text('Wait...')
 
         $.ajax({
-            url: contextPath + `/ajaxCart`,
+            url: contextPath + `/api/cart`,
             method: 'POST',
             data: {
                 phoneId: phoneId,

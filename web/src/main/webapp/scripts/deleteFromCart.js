@@ -8,7 +8,7 @@ $(document).ready(function () {
         button.prop('disabled', true).text('Wait...')
 
         $.ajax({
-            url: contextPath + `/ajaxCart/${phoneId}`,
+            url: contextPath + `/api/cart/${phoneId}`,
             method: 'DELETE',
             success: function(response) {
                 rowToDelete.remove()

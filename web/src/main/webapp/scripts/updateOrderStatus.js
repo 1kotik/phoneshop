@@ -8,7 +8,7 @@ $(document).ready(function () {
         button.prop('disabled', true).text('Wait...')
 
         $.ajax({
-            url: contextPath + `/ajaxAdminOrder/${orderId}?newStatus=${newStatus}`,
+            url: contextPath + `/api/admin/orders/${orderId}?newStatus=${newStatus}`,
             method: 'PATCH',
             success: function() {
                 button.prop('disabled', false).text(newStatus)

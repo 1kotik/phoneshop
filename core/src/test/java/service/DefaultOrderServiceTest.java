@@ -58,8 +58,9 @@ class DefaultOrderServiceTest {
     void shouldGetOrder() {
         Map<Long, Integer> stockMap = Map.of(1L, 2, 2L, 2);
         List<CartItem> items = PhoneTestUtils.getCartList();
-        when(cart.getTotalPrice()).thenReturn(BigDecimal.TEN);
-        when(cart.getCartItems()).thenReturn(items);
+        when(cartService.getCart()).thenReturn(cart);
+        when(cartService.getCart().getTotalPrice()).thenReturn(BigDecimal.TEN);
+        when(cartService.getCart().getCartItems()).thenReturn(items);
         Order order = defaultOrderService.createOrder();
         assertEquals(order.getOrderItems().size(), stockMap.size());
         assertEquals(order.getTotalPrice(), BigDecimal.valueOf(11));
@@ -72,8 +73,9 @@ class DefaultOrderServiceTest {
         List<Stock> stocks = PhoneTestUtils.getStockList();
         List<CartItem> items = PhoneTestUtils.getCartList();
         OrderStatus orderStatus = OrderStatus.NEW;
-        when(cart.getTotalPrice()).thenReturn(BigDecimal.TEN);
-        when(cart.getCartItems()).thenReturn(items);
+        when(cartService.getCart()).thenReturn(cart);
+        when(cartService.getCart().getTotalPrice()).thenReturn(BigDecimal.TEN);
+        when(cartService.getCart().getCartItems()).thenReturn(items);
         when(cartService.getCartItemsMap(any())).thenReturn(stockMap);
         when(stockService.findByPhoneIdSet(stockMap.keySet())).thenReturn(stocks);
         doNothing().when(cartService).removeByPhoneIdSet(Collections.emptyList());
@@ -131,7 +133,7 @@ class DefaultOrderServiceTest {
         OrderStatus newStatus = OrderStatus.DELIVERED;
         Long orderId = 1L;
         when(orderDao.updateOrderStatus(orderId, newStatus)).thenReturn(1);
-        assertDoesNotThrow(() -> defaultOrderService.updateOrderStatus(orderId, newStatus.getValue()));
+        assertDoesNotThrow(() -> defaultOrderService.updateOrderStatus(orderId, newStatus));
     }
 
     @Test
@@ -140,6 +142,6 @@ class DefaultOrderServiceTest {
         Long orderId = 2L;
         when(orderDao.updateOrderStatus(orderId, newStatus)).thenReturn(0);
         assertThrows(OrderNotFoundException.class,
-                () -> defaultOrderService.updateOrderStatus(orderId, newStatus.getValue()));
+                () -> defaultOrderService.updateOrderStatus(orderId, newStatus));
     }
 }

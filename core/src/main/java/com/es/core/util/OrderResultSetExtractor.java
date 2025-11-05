@@ -6,6 +6,8 @@ import com.es.core.model.Order;
 import com.es.core.model.OrderCustomerInfo;
 import com.es.core.model.OrderItem;
 import com.es.core.model.PhoneListItem;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -19,13 +21,16 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-public class OrderRowMapper implements RowMapper<Order> {
+public class OrderResultSetExtractor implements ResultSetExtractor<Order> {
     private RowMapper<PhoneListItem> phoneListItemRowMapper = new PhoneListItemRowMapper();
 
     @Override
-    public Order mapRow(ResultSet rs, int rowNum) throws SQLException {
+    public Order extractData(ResultSet rs) throws SQLException, DataAccessException {
+        if(!rs.next()) {
+            return null;
+        }
         Order order = collectOrderGeneralInfo(rs);
-        Map<Long, List<OrderItem>> orderItems = collectOrderItemsToMap(rs, rowNum);
+        Map<Long, List<OrderItem>> orderItems = collectOrderItemsToMap(rs);
         orderItems.values().forEach(items -> collectItemColorsToSingleEntity(order, items));
         return order;
     }
@@ -50,12 +55,12 @@ public class OrderRowMapper implements RowMapper<Order> {
         return order;
     }
 
-    private Map<Long, List<OrderItem>> collectOrderItemsToMap(ResultSet rs, int rowNum) throws SQLException {
+    private Map<Long, List<OrderItem>> collectOrderItemsToMap(ResultSet rs) throws SQLException {
         Map<Long, List<OrderItem>> orderItems = new HashMap<>();
         do {
             OrderItem orderItem = new OrderItem();
             Long orderItemId = rs.getLong("itemId");
-            PhoneListItem phone = phoneListItemRowMapper.mapRow(rs, rowNum);
+            PhoneListItem phone = phoneListItemRowMapper.mapRow(rs, rs.getRow());
             orderItem.setId(orderItemId);
             orderItem.setOrderId(rs.getLong(SqlUtils.Order.ORDER_ID));
             orderItem.setQuantity(rs.getInt("quantity"));

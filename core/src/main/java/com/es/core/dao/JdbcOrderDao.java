@@ -5,10 +5,9 @@ import com.es.core.model.Order;
 import com.es.core.model.OrderBriefInfo;
 import com.es.core.model.OrderCustomerInfo;
 import com.es.core.util.OrderBriefInfoRowMapper;
-import com.es.core.util.OrderRowMapper;
+import com.es.core.util.OrderResultSetExtractor;
 import com.es.core.util.SqlUtils;
-import jakarta.annotation.Resource;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -25,19 +24,22 @@ import java.util.UUID;
 
 @Component
 public class JdbcOrderDao implements OrderDao {
-    @Resource
-    private JdbcTemplate jdbcTemplate;
-    @Resource
-    private SimpleJdbcInsert jdbcInsertOrder;
-    @Resource
-    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-    @Resource
-    private OrderItemDao orderItemDao;
+    private final SimpleJdbcInsert jdbcInsertOrder;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final OrderItemDao orderItemDao;
+
+    @Autowired
+    public JdbcOrderDao(SimpleJdbcInsert jdbcInsertOrder, NamedParameterJdbcTemplate namedParameterJdbcTemplate,
+                        OrderItemDao orderItemDao) {
+        this.jdbcInsertOrder = jdbcInsertOrder;
+        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
+        this.orderItemDao = orderItemDao;
+    }
 
     @Override
     @Transactional
     public Long save(Order order) {
-        SqlParameterSource params = getInsertParameters(order);
+        SqlParameterSource params = buildInsertParameters(order);
         Long id = jdbcInsertOrder.executeAndReturnKey(params).longValue();
         orderItemDao.insertAll(order.getOrderItems(), id);
         return id;
@@ -51,9 +53,9 @@ public class JdbcOrderDao implements OrderDao {
     @Override
     public Optional<Order> findById(Long id) {
         SqlParameterSource params = new MapSqlParameterSource("orderId", id);
-        List<Order> orders = namedParameterJdbcTemplate
-                .query(SqlUtils.Order.FIND_BY_ID_QUERY, params, new OrderRowMapper());
-        return orders.stream().findFirst();
+        Order order = namedParameterJdbcTemplate
+                .query(SqlUtils.Order.FIND_BY_ID_QUERY, params, new OrderResultSetExtractor());
+        return Optional.ofNullable(order);
     }
 
     @Override
@@ -66,12 +68,12 @@ public class JdbcOrderDao implements OrderDao {
     @Override
     public Optional<Order> findBySecureId(UUID secureId) {
         SqlParameterSource params = new MapSqlParameterSource("secureOrderId", secureId);
-        List<Order> orders = namedParameterJdbcTemplate
-                .query(SqlUtils.Order.FIND_BY_SECURE_ID_QUERY, params, new OrderRowMapper());
-        return orders.stream().findFirst();
+        Order order = namedParameterJdbcTemplate
+                .query(SqlUtils.Order.FIND_BY_SECURE_ID_QUERY, params, new OrderResultSetExtractor());
+        return Optional.ofNullable(order);
     }
 
-    SqlParameterSource getInsertParameters(Order order) {
+    private SqlParameterSource buildInsertParameters(Order order) {
         Map<String, Object> params = new HashMap<>();
         OrderCustomerInfo customerInfo = order.getCustomerInfo();
 

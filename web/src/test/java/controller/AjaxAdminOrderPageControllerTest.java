@@ -22,7 +22,7 @@ class AjaxAdminOrderPageControllerTest {
     @Test
     void shouldUpdateOrderStatus() {
         Long orderId = 1L;
-        String newStatus = OrderStatus.DELIVERED.getValue();
+        OrderStatus newStatus = OrderStatus.DELIVERED;
         doNothing().when(orderService).updateOrderStatus(orderId, newStatus);
         assertDoesNotThrow(() -> ajaxAdminOrderPageController.updateOrderStatus(orderId, newStatus));
     }

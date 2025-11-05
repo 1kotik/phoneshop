@@ -81,7 +81,7 @@ public class HttpSessionCartService implements CartService {
             cart.getCartItems().remove(cartItem);
             calculateTotals();
         } catch (PhoneNotFoundException e) {
-            logger.warn(LogMessageCreator.createExceptionMessage(e, HttpSessionCartService.class));
+            logger.warn(LogMessageCreator.createExceptionMessage(e));
             throw new RemoveCartItemException();
         } finally {
             cartLock.writeLock().unlock();

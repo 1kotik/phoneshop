@@ -14,6 +14,6 @@ public interface OrderService {
     Order placeOrder(Order order, OrderCustomerInfo customerInfo) throws OutOfStockException;
     List<OrderBriefInfo> findAll();
     Order findById(Long id);
-    void updateOrderStatus(Long id, String status);
+    void updateOrderStatus(Long id, OrderStatus status);
     Order findBySecureId(UUID secureId);
 }
