@@ -1,5 +1,7 @@
 package com.es.core.enums;
 
+import java.util.Arrays;
+
 public enum OrderStatus {
     NEW("New"),
     DELIVERED("Delivered"),
@@ -13,5 +15,12 @@ public enum OrderStatus {
 
     public String getValue() {
         return value;
+    }
+
+    public static OrderStatus getOrderStatus(String value) {
+        return Arrays.stream(OrderStatus.values())
+                .filter(orderStatus -> orderStatus.getValue().equals(value))
+                .findFirst()
+                .orElse(NEW);
     }
 }

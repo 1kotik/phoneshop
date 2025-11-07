@@ -5,13 +5,15 @@ import com.es.core.exception.OutOfStockException;
 import com.es.core.model.Cart;
 import com.es.core.model.Order;
 import com.es.core.model.OrderCustomerInfo;
+import com.es.core.service.CartService;
 import com.es.core.service.OrderService;
 import com.es.core.util.AppConstants;
 import com.es.core.util.LogMessageCreator;
-import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,7 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.SessionAttribute;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -32,11 +34,13 @@ import java.util.Map;
 @RequestMapping(value = "/order")
 @SessionAttributes(AppConstants.PageAttributes.ORDER)
 public class OrderPageController {
-    @Resource(name = "defaultOrderService")
-    private OrderService orderService;
-    @Resource
-    private Cart cart;
+    private final OrderService orderService;
     private static final Logger logger = LoggerFactory.getLogger(OrderPageController.class);
+
+    @Autowired
+    public OrderPageController(OrderService orderService) {
+        this.orderService = orderService;
+    }
 
     @GetMapping
     public String getOrder(Model model) throws OutOfStockException {
@@ -66,7 +70,7 @@ public class OrderPageController {
         Order placedOrder = orderService.placeOrder(order, customerInfo);
         redirectAttributes.addFlashAttribute(AppConstants.PageAttributes.ORDER, placedOrder);
         sessionStatus.setComplete();
-        return String.format("%s/%s", AppConstants.Pages.REDIRECT_ORDER_OVERVIEW, order.getSecureId());
+        return String.format("%s/%s", AppConstants.Pages.REDIRECT_ORDER_OVERVIEW, placedOrder.getSecureId());
     }
 
     private Map<String, String> extractErrors(BindingResult bindingResult) {
@@ -76,8 +80,9 @@ public class OrderPageController {
     }
 
     @ExceptionHandler(IllegalStateException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String handleIllegalStateException(IllegalStateException e, Model model) {
-        logger.warn(LogMessageCreator.createExceptionMessage(e, OrderPageController.class));
+        logger.warn(LogMessageCreator.createExceptionMessage(e));
         model.addAttribute(
                 AppConstants.PageAttributes.ERROR,
                 AppConstants.ErrorMessages.ORDER_HAS_ALREADY_BEEN_PLACED);
@@ -85,17 +90,19 @@ public class OrderPageController {
     }
 
     @ExceptionHandler(OutOfStockException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String handleOutOfStockException(OutOfStockException e, RedirectAttributes redirectAttributes) {
-        logger.warn(LogMessageCreator.createExceptionMessage(e, OrderPageController.class));
+        logger.warn(LogMessageCreator.createExceptionMessage(e));
         redirectAttributes.addFlashAttribute(AppConstants.PageAttributes.ERROR,
                 AppConstants.ErrorMessages.CART_ITEMS_OUT_OF_STOCK);
         return AppConstants.Pages.REDIRECT_ORDER;
     }
 
     @ExceptionHandler(InconsistentOrderException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String handleInconsistentOrderException(InconsistentOrderException e,
                                                    RedirectAttributes redirectAttributes) {
-        logger.warn(LogMessageCreator.createExceptionMessage(e, OrderPageController.class));
+        logger.warn(LogMessageCreator.createExceptionMessage(e));
         redirectAttributes.addFlashAttribute(
                 AppConstants.PageAttributes.ERROR,
                 e.getMessage());

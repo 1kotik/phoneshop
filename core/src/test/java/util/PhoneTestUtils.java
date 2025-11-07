@@ -4,6 +4,7 @@ import com.es.core.enums.OrderStatus;
 import com.es.core.model.CartItem;
 import com.es.core.model.Color;
 import com.es.core.model.Order;
+import com.es.core.model.OrderBriefInfo;
 import com.es.core.model.OrderCustomerInfo;
 import com.es.core.model.OrderItem;
 import com.es.core.model.Phone;
@@ -18,6 +19,7 @@ import org.springframework.test.jdbc.JdbcTestUtils;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -102,6 +104,23 @@ public class PhoneTestUtils {
         order.setCustomerInfo(getOrderCustomerInfo());
         order.setSubtotal(BigDecimal.TEN);
         return order;
+    }
+
+    public static OrderBriefInfo getOrderBriefInfo(Long id) {
+        OrderBriefInfo order = new OrderBriefInfo();
+        order.setId(id);
+        order.setContactPhoneNo("+111111111111");
+        order.setDeliveryAddress("address");
+        order.setDateOfRegistration(LocalDateTime.now());
+        order.setTotalPrice(BigDecimal.TEN);
+        order.setStatus(OrderStatus.NEW);
+        order.setCustomerFirstName("firstname");
+        order.setCustomerLastName("lastname");
+        return order;
+    }
+
+    public static List<OrderBriefInfo> getOrderBriefInfoList() {
+        return List.of(getOrderBriefInfo(1L), getOrderBriefInfo(2L));
     }
 
 }

@@ -59,7 +59,8 @@ create table stocks (
 create table orders (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     secureId UUID NOT NULL,
-    customerName VARCHAR(100) NOT NULL,
+    customerFirstName VARCHAR(100) NOT NULL,
+    customerLastName VARCHAR(100) NOT NULL,
     contactPhoneNo VARCHAR(20) NOT NULL,
     deliveryAddress VARCHAR(100) NOT NULL,
     additionalInformation TEXT,

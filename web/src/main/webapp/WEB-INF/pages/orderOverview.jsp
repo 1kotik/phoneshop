@@ -21,86 +21,78 @@
 
 <main class="container my-4">
     <div class="text-center mb-5">
-        <h1 class="display-5 text-success mb-3">
-            <i class="bi bi-check-circle"></i> Thank you for your order
+        <h1 class="display-5mb-3">
+            Thank you for your order
         </h1>
         <p class="lead">Order number: ${order.id}</p>
         <a href="${pageContext.servletContext.contextPath}"
-           class="btn btn-outline-primary mt-3">
-            <i class="bi bi-arrow-left"></i> Back to shopping
+           class="btn btn-light border text-decoration-none">
+            Back to shopping
         </a>
     </div>
 
     <c:if test="${not empty order.orderItems}">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h2 class="h5 mb-0">Order Summary</h2>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-hover">
-                        <thead class="table-light">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Brand</th>
+                        <th>Model</th>
+                        <th>Color</th>
+                        <th>Display Size</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <c:forEach var="item" items="${order.orderItems}" varStatus="status">
                         <tr>
-                            <th>Brand</th>
-                            <th>Model</th>
-                            <th>Color</th>
-                            <th>Display Size</th>
-                            <th>Quantity</th>
-                            <th>Price</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <c:forEach var="item" items="${order.orderItems}" varStatus="status">
-                            <tr>
-                                <td class="align-middle">${item.phone.brand}</td>
-                                <td class="align-middle">
-                                    <a href="${pageContext.servletContext.contextPath}/productDetails/${item.phone.id}"
-                                       class="text-decoration-none">
-                                            ${item.phone.model}
-                                    </a>
-                                </td>
-                                <td class="align-middle">
-                                    <c:forEach var="color" items="${item.phone.colors}" varStatus="status">
-                                        <span>${color.code}${not status.last ? ', ' : ''}</span>
-                                    </c:forEach>
-                                </td>
-                                <td class="align-middle">${item.phone.displaySizeInches}"</td>
-                                <td class="align-middle">${item.quantity}</td>
-                                <td class="align-middle">
-                                    <fmt:formatNumber value="${item.phone.price}" type="currency" currencySymbol="$"/>
-                                </td>
-                            </tr>
-                        </c:forEach>
-                        </tbody>
-                        <tfoot class="table-light">
-                        <tr>
-                            <td colspan="3"></td>
-                            <td class="fw-bold">Subtotal</td>
-                            <td class="fw-bold">Delivery</td>
-                            <td class="fw-bold">Total</td>
-                        </tr>
-                        <tr>
-                            <td colspan="3"></td>
-                            <td class="fw-bold text-success">
-                                <fmt:formatNumber value="${order.subtotal}" type="currency" currencySymbol="$"/>
+                            <td class="align-middle">${item.phone.brand}</td>
+                            <td class="align-middle">
+                                <a href="${pageContext.servletContext.contextPath}/productDetails/${item.phone.id}"
+                                   class="text-decoration-none">
+                                        ${item.phone.model}
+                                </a>
                             </td>
-                            <td class="fw-bold">
-                                <fmt:formatNumber value="${order.deliveryPrice}" type="currency" currencySymbol="$"/>
+                            <td class="align-middle">
+                                <c:forEach var="color" items="${item.phone.colors}" varStatus="status">
+                                    <span>${color.code}${not status.last ? ', ' : ''}</span>
+                                </c:forEach>
                             </td>
-                            <td class="fw-bold text-success">
-                                <fmt:formatNumber value="${order.totalPrice}" type="currency" currencySymbol="$"/>
+                            <td class="align-middle">${item.phone.displaySizeInches}"</td>
+                            <td class="align-middle">${item.quantity}</td>
+                            <td class="align-middle">
+                                <fmt:formatNumber value="${item.phone.price}" type="currency" currencySymbol="$"/>
                             </td>
                         </tr>
-                        </tfoot>
-                    </table>
-                </div>
+                    </c:forEach>
+                    </tbody>
+                    <tfoot class="table-light">
+                    <tr>
+                        <td colspan="3"></td>
+                        <td class="fw-bold">Subtotal</td>
+                        <td class="fw-bold">Delivery</td>
+                        <td class="fw-bold">Total</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3"></td>
+                        <td class="fw-bold">
+                            <fmt:formatNumber value="${order.subtotal}" type="currency" currencySymbol="$"/>
+                        </td>
+                        <td class="fw-bold">
+                            <fmt:formatNumber value="${order.deliveryPrice}" type="currency" currencySymbol="$"/>
+                        </td>
+                        <td class="fw-bold">
+                            <fmt:formatNumber value="${order.totalPrice}" type="currency" currencySymbol="$"/>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
             </div>
         </div>
 
         <div class="card">
-            <div class="card-header">
-                <h2 class="h5 mb-0">Customer Details</h2>
-            </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6 mb-3">

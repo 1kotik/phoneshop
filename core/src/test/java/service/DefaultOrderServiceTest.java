@@ -2,9 +2,11 @@ package service;
 
 import com.es.core.dao.OrderDao;
 import com.es.core.enums.OrderStatus;
+import com.es.core.exception.OrderNotFoundException;
 import com.es.core.model.Cart;
 import com.es.core.model.CartItem;
 import com.es.core.model.Order;
+import com.es.core.model.OrderBriefInfo;
 import com.es.core.model.Stock;
 import com.es.core.service.CartService;
 import com.es.core.service.DefaultOrderService;
@@ -22,9 +24,12 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.Optional;
+import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
@@ -53,8 +58,9 @@ class DefaultOrderServiceTest {
     void shouldGetOrder() {
         Map<Long, Integer> stockMap = Map.of(1L, 2, 2L, 2);
         List<CartItem> items = PhoneTestUtils.getCartList();
-        when(cart.getTotalPrice()).thenReturn(BigDecimal.TEN);
-        when(cart.getCartItems()).thenReturn(items);
+        when(cartService.getCart()).thenReturn(cart);
+        when(cartService.getCart().getTotalPrice()).thenReturn(BigDecimal.TEN);
+        when(cartService.getCart().getCartItems()).thenReturn(items);
         Order order = defaultOrderService.createOrder();
         assertEquals(order.getOrderItems().size(), stockMap.size());
         assertEquals(order.getTotalPrice(), BigDecimal.valueOf(11));
@@ -67,8 +73,9 @@ class DefaultOrderServiceTest {
         List<Stock> stocks = PhoneTestUtils.getStockList();
         List<CartItem> items = PhoneTestUtils.getCartList();
         OrderStatus orderStatus = OrderStatus.NEW;
-        when(cart.getTotalPrice()).thenReturn(BigDecimal.TEN);
-        when(cart.getCartItems()).thenReturn(items);
+        when(cartService.getCart()).thenReturn(cart);
+        when(cartService.getCart().getTotalPrice()).thenReturn(BigDecimal.TEN);
+        when(cartService.getCart().getCartItems()).thenReturn(items);
         when(cartService.getCartItemsMap(any())).thenReturn(stockMap);
         when(stockService.findByPhoneIdSet(stockMap.keySet())).thenReturn(stocks);
         doNothing().when(cartService).removeByPhoneIdSet(Collections.emptyList());
@@ -79,5 +86,62 @@ class DefaultOrderServiceTest {
                 .placeOrder(PhoneTestUtils.getOrder(), PhoneTestUtils.getOrderCustomerInfo());
         assertEquals(actualOrder.getOrderItems().size(), expectedOrder.getOrderItems().size());
         assertEquals(actualOrder.getTotalPrice(), expectedOrder.getTotalPrice());
+    }
+
+    @Test
+    void shouldFindAll() {
+        List<OrderBriefInfo> expectedResult = PhoneTestUtils.getOrderBriefInfoList();
+        when(orderDao.findAll()).thenReturn(expectedResult);
+        List<OrderBriefInfo> actualResult = defaultOrderService.findAll();
+        assertEquals(expectedResult, actualResult);
+    }
+
+    @Test
+    void shouldFindById() {
+        Long orderId = 1L;
+        Order expectedOrder = PhoneTestUtils.getOrder();
+        when(orderDao.findById(orderId)).thenReturn(Optional.of(expectedOrder));
+        Order actualOrder = defaultOrderService.findById(orderId);
+        assertEquals(expectedOrder, actualOrder);
+    }
+
+    @Test
+    void shouldThrowOrderNotFoundExceptionWhenFindingById() {
+        Long orderId = 2L;
+        when(orderDao.findById(orderId)).thenReturn(Optional.empty());
+        assertThrows(OrderNotFoundException.class, () -> defaultOrderService.findById(orderId));
+    }
+
+    @Test
+    void shouldFindBySecureId() {
+        UUID secureId = UUID.randomUUID();
+        Order expectedOrder = PhoneTestUtils.getOrder();
+        when(orderDao.findBySecureId(secureId)).thenReturn(Optional.of(expectedOrder));
+        Order actualOrder = defaultOrderService.findBySecureId(secureId);
+        assertEquals(expectedOrder, actualOrder);
+    }
+
+    @Test
+    void shouldThrowOrderNotFoundExceptionWhenFindingBySecureId() {
+        UUID secureId = UUID.randomUUID();
+        when(orderDao.findBySecureId(secureId)).thenReturn(Optional.empty());
+        assertThrows(OrderNotFoundException.class, () -> defaultOrderService.findBySecureId(secureId));
+    }
+
+    @Test
+    void shouldUpdateOrder() {
+        OrderStatus newStatus = OrderStatus.DELIVERED;
+        Long orderId = 1L;
+        when(orderDao.updateOrderStatus(orderId, newStatus)).thenReturn(1);
+        assertDoesNotThrow(() -> defaultOrderService.updateOrderStatus(orderId, newStatus));
+    }
+
+    @Test
+    void shouldThrowOrderNotFoundExceptionWhenUpdatingOrder() {
+        OrderStatus newStatus = OrderStatus.DELIVERED;
+        Long orderId = 2L;
+        when(orderDao.updateOrderStatus(orderId, newStatus)).thenReturn(0);
+        assertThrows(OrderNotFoundException.class,
+                () -> defaultOrderService.updateOrderStatus(orderId, newStatus));
     }
 }

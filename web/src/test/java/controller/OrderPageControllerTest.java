@@ -30,8 +30,6 @@ import static org.mockito.Mockito.when;
 class OrderPageControllerTest {
     @Mock
     private OrderService orderService;
-    @Mock
-    private Cart cart;
     @InjectMocks
     private OrderPageController orderPageController;
 
