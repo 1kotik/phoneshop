@@ -22,6 +22,9 @@ public class AppConstants {
         public static final String REDIRECT_ERROR = "redirect:/error";
         public static final String ADMIN_ORDERS = "adminOrders";
         public static final String ADMIN_ORDER_OVERVIEW = "adminOrderOverview";
+        public static final String LOGIN = "login";
+        public static final String REDIRECT_LOGIN = "redirect:/auth/login";
+        public static final String REDIRECT_PRODUCT_LIST = "redirect:/productList";
     }
 
     public static class ErrorMessages {
@@ -32,6 +35,7 @@ public class AppConstants {
         public static final String INVALID_FORMAT = "Invalid format";
         public static final String INTERNAL_ERROR = "Something went wrong";
         public static final String CART_ITEMS_OUT_OF_STOCK = "Some items are out of stock and removed from the cart";
+        public static final String ACCESS_DENIED = "You do not have permission to access this page";
     }
 
     public static class PageAttributes {
@@ -49,6 +53,7 @@ public class AppConstants {
         public static final String VALIDATION_ERRORS = "validationErrors";
         public static final String ERROR = "error";
         public static final String ADMIN_ORDERS = "orders";
+        public static final String AUTHENTICATION_REQUEST = "authenticationRequest";
     }
 
     public static class DefaultConstants {

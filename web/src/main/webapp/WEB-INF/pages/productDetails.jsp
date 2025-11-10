@@ -17,7 +17,7 @@
 </head>
 <body data-context-path="${pageContext.servletContext.contextPath}">
 
-<tags:header cart="${cartTotals}"/>
+<tags:header cart="${cartTotals}" isAuthenticated="${isAuthenticated}" username="${username}"/>
 
 <main class="container my-4">
     <a href="${pageContext.servletContext.contextPath}"

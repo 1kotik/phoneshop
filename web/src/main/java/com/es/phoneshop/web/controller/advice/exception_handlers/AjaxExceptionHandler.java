@@ -1,4 +1,4 @@
-package com.es.phoneshop.web.controller.exception_handlers;
+package com.es.phoneshop.web.controller.advice.exception_handlers;
 
 import com.es.core.exception.OutOfStockException;
 import com.es.core.exception.RemoveCartItemException;
