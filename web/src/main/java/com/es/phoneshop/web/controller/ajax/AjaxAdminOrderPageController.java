@@ -2,7 +2,6 @@ package com.es.phoneshop.web.controller.ajax;
 
 import com.es.core.enums.OrderStatus;
 import com.es.core.service.OrderService;
-import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

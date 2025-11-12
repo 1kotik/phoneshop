@@ -18,8 +18,8 @@
 </head>
 <body data-context-path="${pageContext.servletContext.contextPath}">
 
-<tags:header cart=""/>
-
+<tags:header cart="" />
+<tags:csrfMetaInfo/>
 
 <main class="container my-4">
     <span id="update-order-status-msg" class="d-block mb-3"></span>

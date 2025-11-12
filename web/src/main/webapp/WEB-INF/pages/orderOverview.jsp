@@ -17,7 +17,7 @@
 </head>
 <body data-context-path="${pageContext.servletContext.contextPath}">
 
-<tags:header cart=""/>
+<tags:header cart="" />
 
 <main class="container my-4">
     <div class="text-center mb-5">

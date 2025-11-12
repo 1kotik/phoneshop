@@ -17,7 +17,8 @@
 </head>
 <body data-context-path="${pageContext.servletContext.contextPath}">
 
-<tags:header cart="${cartTotals}"/>
+<tags:header cart="${cartTotals}" />
+<tags:csrfMetaInfo/>
 
 <main class="container my-4">
     <div class="d-flex justify-content-between align-items-center mb-3">

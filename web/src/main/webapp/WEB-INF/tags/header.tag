@@ -1,8 +1,10 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 <%@tag trimDirectiveWhitespaces="true" %>
 <%@attribute name="cart" type="com.es.core.model.CartTotals" required="true" %>
+
 
 <header>
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
@@ -11,10 +13,6 @@
                 <i class="bi bi-phone"></i> Phonify
             </a>
             <div class="d-flex align-items-center gap-2">
-                <a href="${pageContext.servletContext.contextPath}/admin/orders"
-                   class="btn btn-light border text-decoration-none">
-                    Admin
-                </a>
                 <c:if test="${not empty cart}">
                     <div class="ms-3">
                         <a href="${pageContext.servletContext.contextPath}/cart"
@@ -28,6 +26,27 @@
                         </a>
                     </div>
                 </c:if>
+                <c:choose>
+                    <c:when test="${isAuthenticated}">
+                        <form method="post" action="${pageContext.servletContext.contextPath}/auth/logout">
+                            <tags:csrfHiddenInput/>
+                            <button type="submit" class="btn btn-light border text-decoration-none">
+                                Logout
+                            </button>
+                        </form>
+                        <a href="${pageContext.servletContext.contextPath}/admin/orders"
+                           class="btn btn-light border text-decoration-none">
+                            Admin
+                        </a>
+                        <span class="fw-bold">${username}</span>
+                    </c:when>
+                    <c:otherwise>
+                        <a href="${pageContext.servletContext.contextPath}/auth/login"
+                           class="btn btn-light border text-decoration-none">
+                            Login
+                        </a>
+                    </c:otherwise>
+                </c:choose>
             </div>
         </div>
     </nav>

@@ -17,7 +17,7 @@
 </head>
 <body data-context-path="${pageContext.servletContext.contextPath}">
 
-<tags:header cart=""/>
+<tags:header cart="" />
 
 <main class="container my-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -100,6 +100,7 @@
             <div class="card-body">
                 <form:form action="${pageContext.servletContext.contextPath}/order" method="post"
                            modelAttribute="orderCustomerInfo">
+                    <tags:csrfHiddenInput/>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <tags:customerDetailsInput error="${validationErrors['firstName']}"
