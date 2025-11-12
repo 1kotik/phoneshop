@@ -29,6 +29,7 @@
    </div>
     <form:form action="${pageContext.servletContext.contextPath}/auth/login"
                method="post" modelAttribute="authenticationRequest">
+        <tags:csrfHiddenInput/>
         <div class="mb-3">
             <label for="username" class="form-label fw-bold">Username</label>
             <form:input path="username"

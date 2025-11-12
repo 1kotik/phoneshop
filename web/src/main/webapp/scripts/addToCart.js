@@ -5,6 +5,9 @@ $(document).ready(function () {
         let quantity = button.closest('tr').find('.quantity-input').val()
         let errorMessage = button.closest('tr').find('.error-message')
         let contextPath = $('body').data('context-path')
+        let csrfToken = $("meta[name='_csrf_token']").attr("content");
+        let csrfHeader = $("meta[name='_csrf_header']").attr("content");
+
 
         if(quantity === undefined) {
             quantity = $('#quantity-input').val()
@@ -26,6 +29,9 @@ $(document).ready(function () {
             data: {
                 phoneId: phoneId,
                 quantity: quantity
+            },
+            headers: {
+                [csrfHeader]: csrfToken
             },
             success: function(response) {
                 button.prop('disabled', false).text('Add')

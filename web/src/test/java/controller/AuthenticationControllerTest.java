@@ -14,6 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.ui.ExtendedModelMap;
 import org.springframework.ui.Model;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributesModelMap;
 
@@ -45,9 +47,11 @@ class AuthenticationControllerTest {
         RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
         AuthenticationRequest authRequest = new AuthenticationRequest("username", "password");
         Cart cart = new Cart();
+        BindingResult bindingResult = new BeanPropertyBindingResult
+                (authRequest, AppConstants.PageAttributes.AUTHENTICATION_REQUEST);
         doNothing().when(authenticationService).login(authRequest);
         when(cartService.getCart()).thenReturn(cart);
-        String view = authenticationController.login(authRequest, redirectAttributes);
+        String view = authenticationController.login(authRequest, bindingResult, redirectAttributes);
         assertEquals(AppConstants.Pages.REDIRECT_PRODUCT_LIST, view);
         assertTrue(redirectAttributes.getFlashAttributes()
                 .containsValue(cart));
@@ -57,17 +61,12 @@ class AuthenticationControllerTest {
     void shouldRedirectToLoginPageWhenLogin() {
         RedirectAttributes redirectAttributes = new RedirectAttributesModelMap();
         AuthenticationRequest authRequest = new AuthenticationRequest("username", "password");
+        BindingResult bindingResult = new BeanPropertyBindingResult
+                (authRequest, AppConstants.PageAttributes.AUTHENTICATION_REQUEST);
         doThrow(BadCredentialsException.class).when(authenticationService).login(authRequest);
-        String view = authenticationController.login(authRequest, redirectAttributes);
+        String view = authenticationController.login(authRequest, bindingResult, redirectAttributes);
         assertEquals(AppConstants.Pages.REDIRECT_LOGIN, view);
         assertTrue(redirectAttributes.getFlashAttributes().containsValue(authRequest));
         assertTrue(redirectAttributes.getFlashAttributes().containsKey(AppConstants.PageAttributes.ERROR));
-    }
-
-    @Test
-    void shouldDoLogout() {
-        doNothing().when(authenticationService).logout();
-        String view = authenticationController.logout();
-        assertEquals(AppConstants.Pages.REDIRECT_LOGIN, view);
     }
 }

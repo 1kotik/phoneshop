@@ -1,10 +1,10 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+<%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 <%@tag trimDirectiveWhitespaces="true" %>
 <%@attribute name="cart" type="com.es.core.model.CartTotals" required="true" %>
-<%@attribute name="isAuthenticated" type="java.lang.Boolean" required="true" %>
-<%@attribute name="username" type="java.lang.String" required="true" %>
+
 
 <header>
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
@@ -13,8 +13,6 @@
                 <i class="bi bi-phone"></i> Phonify
             </a>
             <div class="d-flex align-items-center gap-2">
-                <c:if test="${isAuthenticated}">
-                </c:if>
                 <c:if test="${not empty cart}">
                     <div class="ms-3">
                         <a href="${pageContext.servletContext.contextPath}/cart"
@@ -31,6 +29,7 @@
                 <c:choose>
                     <c:when test="${isAuthenticated}">
                         <form method="post" action="${pageContext.servletContext.contextPath}/auth/logout">
+                            <tags:csrfHiddenInput/>
                             <button type="submit" class="btn btn-light border text-decoration-none">
                                 Logout
                             </button>

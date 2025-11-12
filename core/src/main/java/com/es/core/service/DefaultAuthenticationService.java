@@ -25,8 +25,4 @@ public class DefaultAuthenticationService implements AuthenticationService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
-    @Override
-    public void logout() {
-        SecurityContextHolder.clearContext();
-    }
 }

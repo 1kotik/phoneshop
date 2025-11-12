@@ -18,7 +18,8 @@
 </head>
 <body data-context-path="${pageContext.servletContext.contextPath}">
 
-<tags:header cart="${cartTotals}" isAuthenticated="${isAuthenticated}" username="${username}"/>
+<tags:header cart="${cartTotals}" />
+<tags:csrfMetaInfo/>
 
 <main class="container my-4">
     <a href="${pageContext.servletContext.contextPath}"
@@ -34,6 +35,7 @@
     <div class="table-responsive">
         <form:form action="${pageContext.servletContext.contextPath}/cart" method="post"
                    style="display: inline;" modelAttribute="cartUpdateForm">
+            <tags:csrfHiddenInput/>
             <table class="table table-bordered">
                 <thead class="table-light">
                 <tr>
