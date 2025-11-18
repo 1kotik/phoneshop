@@ -11,4 +11,10 @@ public class ParameterExtractor {
         Matcher matcher = pattern.matcher(fieldName);
         return matcher.find() ? Long.valueOf(matcher.group(1)) : null;
     }
+
+    public static String extractItemCodeFromBindingResultField(String fieldName) {
+        Pattern pattern = Pattern.compile("items\\[(.+?)]");
+        Matcher matcher = pattern.matcher(fieldName);
+        return matcher.find() ? matcher.group(1) : null;
+    }
 }

@@ -97,6 +97,10 @@ public class SqlUtils {
                 PHONES_COLORS_RELATIONS_PHONE_ID, PHONE_ID, Color.TABLE_NAME, Color.COLOR_ID,
                 PHONES_COLORS_RELATIONS_COLOR_ID, PHONE_ID);
 
+        public static final String FIND_BY_MODEL_SET = String.format("""
+                select %s, model from %s where model in (:models)
+                """, PHONE_ID, TABLE_NAME);
+
     }
 
     public static class Order {
