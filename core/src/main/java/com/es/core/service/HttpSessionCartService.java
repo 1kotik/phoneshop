@@ -137,9 +137,9 @@ public class HttpSessionCartService implements CartService {
     }
 
     @Override
-    public Map<String, String> b2bInsert(Map<String, Integer> items) {
+    public Map<String, ErrorItem> b2bInsert(Map<String, Integer> items) {
         cartLock.writeLock().lock();
-        Map<String, String> insertErrors = new HashMap<>();
+        Map<String, ErrorItem> insertErrors = new HashMap<>();
         try {
             List<PhoneIdAndModelDto> phones = phoneService.findPhonesByModelList(items.keySet());
             Map<Long, Integer> convertedItems = convertB2BInsertMap(items, phones, insertErrors);
@@ -151,13 +151,15 @@ public class HttpSessionCartService implements CartService {
         return insertErrors;
     }
 
-    private void addAllItems(Map<Long, Integer> items, List<PhoneIdAndModelDto> phones, Map<String, String> errors) {
+    private void addAllItems(Map<Long, Integer> items, List<PhoneIdAndModelDto> phones, Map<String, ErrorItem> errors) {
         for (Map.Entry<Long, Integer> item : items.entrySet()) {
             try {
-                getItemInCart(item.getKey()).ifPresentOrElse(phone -> updateItemIfAlreadyInCart(phone, item.getValue()),
+                getItemInCart(item.getKey()).ifPresentOrElse(phone ->
+                                updateItemIfAlreadyInCart(phone, item.getValue() + phone.getQuantity()),
                         () -> addItemIfNotInCart(item.getKey(), item.getValue()));
             } catch (OutOfStockException e) {
-                errors.put(findItemInListById(phones, item).getModel(), e.getMessage());
+                errors.put(findItemInListById(phones, item).getModel(),
+                        new ErrorItem(item.getValue(), e.getMessage()));
             }
         }
     }
@@ -198,14 +200,14 @@ public class HttpSessionCartService implements CartService {
     }
 
     private Map<Long, Integer> convertB2BInsertMap(Map<String, Integer> items, List<PhoneIdAndModelDto> phones,
-            Map<String, String> errors) {
+                                                   Map<String, ErrorItem> errors) {
         Map<Long, Integer> newItems = new HashMap<>();
         for (Map.Entry<String, Integer> item : items.entrySet()) {
             Optional<PhoneIdAndModelDto> phone = findItemInListByModel(phones, item);
-            if(phone.isPresent()) {
+            if (phone.isPresent()) {
                 newItems.put(phone.get().getId(), item.getValue());
             } else {
-                errors.put(item.getKey(), "Item is not found");
+                errors.put(item.getKey(), new ErrorItem(item.getValue(), "Item not found"));
             }
         }
         return newItems;

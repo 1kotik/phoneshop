@@ -25,6 +25,13 @@
         Order
     </a>
 
+    <c:forEach var="successMessage" items="${successMessages}">
+        <div class="alert alert-success">${successMessage}</div>
+    </c:forEach>
+    <c:if test="${not empty b2bCartFormErrors}">
+        <div class="alert alert-danger">There were errors</div>
+    </c:if>
+
     <h2 class="h4 mb-4">Add products by model (B2B)</h2>
 
     <div class="table-responsive">
@@ -45,31 +52,30 @@
                 <tbody>
                 <c:forEach var="pos" begin="0" end="9">
                     <c:set var="prefix" value="model${pos}"/>
-                    <c:set var="savedModel" value="${param[prefix]}"/>
-                    <c:set var="savedQty" value="${b2bCartForm.items[prefix]}"/>
-                    <c:set var="hasError" value="${not empty b2bCartFormErrors[savedModel]}"/>
-
-                    <c:set var="hasData" value="${not empty savedModel or not empty savedQty or hasError}"/>
+                    <c:set var="hasError" value="${not empty b2bCartFormErrors[prefix]}"/>
+                    <c:set var="savedModel" value="${b2bCartFormErrors[prefix].enteredModel}"/>
+                    <c:set var="savedQty" value="${b2bCartFormErrors[prefix].enteredQuantity}"/>
+                    <c:set var="errorMessage" value="${b2bCartFormErrors[prefix].message}"/>
 
                     <tr>
                         <td>
                             <input type="text"
                                    name="${prefix}"
                                    class="form-control ${hasError ? 'is-invalid' : ''}"
-                                   value="${hasData ? savedModel : ''}"
-                                   />
+                                   value="${hasError ? savedModel : ''}"
+                            />
                         </td>
                         <td>
                             <input type="text"
                                    name="items[${prefix}]"
                                    class="form-control ${hasError ? 'is-invalid' : ''}"
                                    style="width: 100px;"
-                                   value="${hasData && not empty savedQty ? savedQty : ''}"/>
+                                   value="${hasError ? savedQty : ''}"/>
                         </td>
                         <td>
                             <c:if test="${hasError}">
                                 <small class="text-danger d-block">
-                                        ${b2bCartFormErrors[savedModel]}
+                                        ${errorMessage}
                                 </small>
                             </c:if>
                         </td>
