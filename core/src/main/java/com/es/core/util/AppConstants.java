@@ -25,6 +25,8 @@ public class AppConstants {
         public static final String LOGIN = "login";
         public static final String REDIRECT_LOGIN = "redirect:/auth/login";
         public static final String REDIRECT_PRODUCT_LIST = "redirect:/productList";
+        public static final String B2B_CART = "b2bCart";
+        public static final String REDIRECT_B2B_CART = "redirect:/cart/b2b";
     }
 
     public static class ErrorMessages {

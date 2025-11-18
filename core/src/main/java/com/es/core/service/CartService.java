@@ -18,4 +18,5 @@ public interface CartService {
     Map<Long, Integer> getCartItemsMap(List<? extends CartItem> cartItems);
     void removeByPhoneIdSet(Collection<Long> phoneIds);
     void clearCart();
+    Map<String, String> b2bInsert(Map<String, Integer> items);
 }

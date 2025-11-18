@@ -4,6 +4,7 @@ import com.es.core.enums.SortCriteria;
 import com.es.core.enums.SortOrder;
 import com.es.core.model.Color;
 import com.es.core.model.Phone;
+import com.es.core.model.PhoneIdAndModelDto;
 import com.es.core.model.PhoneListItem;
 import com.es.core.model.PhoneListResponse;
 import com.es.core.util.PhoneListItemRowMapper;
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -131,6 +133,13 @@ public class JdbcPhoneDao implements PhoneDao {
             result.get().setColors(colors);
         }
         return result;
+    }
+
+    @Override
+    public List<PhoneIdAndModelDto> findPhonesByModelList(Collection<String> models) {
+        String sql = SqlUtils.Phone.FIND_BY_MODEL_SET;
+        SqlParameterSource params = new MapSqlParameterSource("models", models);
+        return namedParameterJdbcTemplate.query(sql, params, new BeanPropertyRowMapper<>(PhoneIdAndModelDto.class));
     }
 
     private void deletePhoneColorRelations(Long phoneId) {

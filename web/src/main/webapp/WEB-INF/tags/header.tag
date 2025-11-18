@@ -13,6 +13,10 @@
                 <i class="bi bi-phone"></i> Phonify
             </a>
             <div class="d-flex align-items-center gap-2">
+                <a href="${pageContext.servletContext.contextPath}/cart/b2b"
+                   class="btn btn-light border text-decoration-none">
+                    B2B Cart
+                </a>
                 <c:if test="${not empty cart}">
                     <div class="ms-3">
                         <a href="${pageContext.servletContext.contextPath}/cart"

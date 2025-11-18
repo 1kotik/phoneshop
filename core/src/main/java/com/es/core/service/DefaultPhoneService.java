@@ -7,12 +7,14 @@ import com.es.core.enums.SortOrder;
 import com.es.core.exception.PhoneNotFoundException;
 import com.es.core.model.Color;
 import com.es.core.model.Phone;
+import com.es.core.model.PhoneIdAndModelDto;
 import com.es.core.model.PhoneListItem;
 import com.es.core.model.PhoneListResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,6 +60,12 @@ public class DefaultPhoneService implements PhoneService {
     public PhoneListItem getBriefInfoById(Long id) {
         return phoneDao.getBriefInfoById(id).orElseThrow(() -> new PhoneNotFoundException(id));
     }
+
+    @Override
+    public List<PhoneIdAndModelDto> findPhonesByModelList(Collection<String> models) {
+        return phoneDao.findPhonesByModelList(models);
+    }
+
 
     private void setColors(List<PhoneListItem> phones) {
         Map<Long, Set<Color>> colorMap = colorDao

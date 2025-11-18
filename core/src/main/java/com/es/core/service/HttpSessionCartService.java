@@ -7,6 +7,7 @@ import com.es.core.model.Cart;
 import com.es.core.model.CartItem;
 import com.es.core.model.CartTotals;
 import com.es.core.model.ErrorItem;
+import com.es.core.model.PhoneIdAndModelDto;
 import com.es.core.model.PhoneListItem;
 import com.es.core.util.LogMessageCreator;
 import jakarta.annotation.Resource;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -134,6 +136,32 @@ public class HttpSessionCartService implements CartService {
         cart.setTotalPrice(BigDecimal.ZERO);
     }
 
+    @Override
+    public Map<String, String> b2bInsert(Map<String, Integer> items) {
+        cartLock.writeLock().lock();
+        Map<String, String> insertErrors = new HashMap<>();
+        try {
+            List<PhoneIdAndModelDto> phones = phoneService.findPhonesByModelList(items.keySet());
+            Map<Long, Integer> convertedItems = convertB2BInsertMap(items, phones, insertErrors);
+            addAllItems(convertedItems, phones, insertErrors);
+            calculateTotals();
+        } finally {
+            cartLock.writeLock().unlock();
+        }
+        return insertErrors;
+    }
+
+    private void addAllItems(Map<Long, Integer> items, List<PhoneIdAndModelDto> phones, Map<String, String> errors) {
+        for (Map.Entry<Long, Integer> item : items.entrySet()) {
+            try {
+                getItemInCart(item.getKey()).ifPresentOrElse(phone -> updateItemIfAlreadyInCart(phone, item.getValue()),
+                        () -> addItemIfNotInCart(item.getKey(), item.getValue()));
+            } catch (OutOfStockException e) {
+                errors.put(findItemInListById(phones, item).getModel(), e.getMessage());
+            }
+        }
+    }
+
     private Optional<CartItem> getItemInCart(Long phoneId) {
         return cart.getCartItems().stream()
                 .filter(item -> phoneId.equals(item.getPhone().getId()))
@@ -167,5 +195,32 @@ public class HttpSessionCartService implements CartService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         cart.setTotalQuantity(totalQuantity);
         cart.setTotalPrice(totalPrice);
+    }
+
+    private Map<Long, Integer> convertB2BInsertMap(Map<String, Integer> items, List<PhoneIdAndModelDto> phones,
+            Map<String, String> errors) {
+        Map<Long, Integer> newItems = new HashMap<>();
+        for (Map.Entry<String, Integer> item : items.entrySet()) {
+            Optional<PhoneIdAndModelDto> phone = findItemInListByModel(phones, item);
+            if(phone.isPresent()) {
+                newItems.put(phone.get().getId(), item.getValue());
+            } else {
+                errors.put(item.getKey(), "Item is not found");
+            }
+        }
+        return newItems;
+    }
+
+    private Optional<PhoneIdAndModelDto> findItemInListByModel(List<PhoneIdAndModelDto> phones, Map.Entry<String, Integer> item) {
+        return phones.stream()
+                .filter(phone -> phone.getModel().equals(item.getKey()))
+                .findFirst();
+    }
+
+    private PhoneIdAndModelDto findItemInListById(List<PhoneIdAndModelDto> phones, Map.Entry<Long, Integer> item) {
+        return phones.stream()
+                .filter(phone -> phone.getId().equals(item.getKey()))
+                .findFirst()
+                .orElseThrow(() -> new PhoneNotFoundException(item.getKey()));
     }
 }
